@@ -218,8 +218,7 @@ public class SpaceJunk {
             }
             if(Keyboard.getEventKey() == Keyboard.KEY_F9) soundManager.playRandomMusic();
             if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();
-
-            /*if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
+            if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
                 try {
                     if(!FULLSCREEN) Display.setDisplayModeAndFullscreen(Display.getDesktopDisplayMode());
                     else {
@@ -234,7 +233,7 @@ public class SpaceJunk {
                 catch(Exception e) {
                     e.printStackTrace();
                 }
-            }*/
+            }
         }
     }
 
@@ -259,7 +258,6 @@ public class SpaceJunk {
         glEnd();*/
 
         drawBg();
-        if(Mouse.isGrabbed()) generateAsteroid();
         Sprite sprite = null;
         for(int i = 0; i < sprites.size(); i++) {
             sprite = sprites.get(i);
@@ -289,6 +287,7 @@ public class SpaceJunk {
     }
 
     private void update() {
+        if(Mouse.isGrabbed()) generateAsteroid();
         if(Mouse.isGrabbed()) time = (Calendar.getInstance().getTimeInMillis() - startTime) / 1000;
         else {
             startTime += Calendar.getInstance().getTimeInMillis() - pauseTime;

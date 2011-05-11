@@ -36,7 +36,7 @@ public class LauncherGUI extends JFrame {
             DisplayMode current = displayModes[i];
             modeNames[i] = current.getWidth() + "x" + current.getHeight() + "x" + current.getBitsPerPixel() + " " + current.getFrequency() + "Hz";
         }
-        String[] diffModes = {"Easy", "Normal", "Hard", "Expert", "Impossible"};
+        String[] diffModes = {"Easy", "Normal", "Hard", "Expert", "Oh God..."};
         Box box;
 
         
