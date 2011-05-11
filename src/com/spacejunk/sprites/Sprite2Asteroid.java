@@ -26,9 +26,10 @@ import com.spacejunk.SpaceJunk;
  */
 public class Sprite2Asteroid implements Sprite {
     private List<Sprite> sprites;
-    private int id, x, y, z, hits;
+    private int id, x, y, z, hits, yDir, yTimes;
     private long flashTime;
     private boolean visible, rotDir, flash;
+    private Random random;
     private Texture tex;
     private SoundManager sm;
     private SpaceJunk sj;
@@ -36,11 +37,12 @@ public class Sprite2Asteroid implements Sprite {
 
     public Sprite2Asteroid(List sprites, int x, int y, SpaceJunk sj) {
         try {
-            Random random = new Random();
+            random = new Random();
             this.rotDir = random.nextBoolean();
             this.sprites = sprites;
-            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 3; this.visible = true; this.flash = false;
-            this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + random.nextInt(3) + ".png"), GL_NEAREST);
+            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 3; this.yTimes = 0; this.yDir = random.nextBoolean() ? 1 : -1;
+            this.visible = true; this.flash = false;
+            this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + random.nextInt(5) + ".png"), GL_NEAREST);
             //this.sm = new SoundManager();
             this.sj = sj;
         }
@@ -52,7 +54,12 @@ public class Sprite2Asteroid implements Sprite {
 
     public void update() {
         this.x -= 2;
+        this.y = new MathHelper().clamp(this.y + yDir, 0, Display.getDisplayMode().getHeight()); yTimes++;
         this.z = new MathHelper().loop((rotDir ? this.z + 2 : this.z - 2), 0, 360);
+        if(yTimes >= (yDir == 0 ? random.nextInt(60) : new MathHelper().clamp(random.nextInt(600), 60, 600))) {
+            yDir = random.nextInt(3) - 1;
+            yTimes = 0;
+        }
         if(this.x + 64 <= 0 || this.hits <= 0) {
             this.setVisible(false);
             if(this.hits <= 0) sj.incScore(1);
