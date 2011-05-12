@@ -26,7 +26,7 @@ import com.spacejunk.SpaceJunk;
  */
 public class Sprite2Asteroid implements Sprite {
     private List<Sprite> sprites;
-    private int id, x, y, z, hits, yDir, yTimes;
+    private int id, x, y, z, hits, yDir, yTimes, yNextTime;
     private long flashTime;
     private boolean visible, rotDir, flash;
     private Random random;
@@ -40,7 +40,7 @@ public class Sprite2Asteroid implements Sprite {
             random = new Random();
             this.rotDir = random.nextBoolean();
             this.sprites = sprites;
-            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 3; this.yTimes = 0; this.yDir = random.nextBoolean() ? 1 : -1;
+            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 5; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + random.nextInt(5) + ".png"), GL_NEAREST);
             //this.sm = new SoundManager();
@@ -54,10 +54,15 @@ public class Sprite2Asteroid implements Sprite {
 
     public void update() {
         this.x -= 2;
-        this.y = new MathHelper().clamp(this.y + yDir, 0, Display.getDisplayMode().getHeight()); yTimes++;
+        this.y = this.y + yDir; yTimes++;
         this.z = new MathHelper().loop((rotDir ? this.z + 2 : this.z - 2), 0, 360);
-        if(yTimes >= (yDir == 0 ? random.nextInt(60) : new MathHelper().clamp(random.nextInt(600), 60, 600))) {
+        /*if(yTimesSmooth < 30 && yDir != 0 && nextY <= 1) {
+            nextY += 0.03F;
+            yTimesSmooth++;
+        }*/
+        if(yTimes >= yNextTime) {
             yDir = random.nextInt(3) - 1;
+            yNextTime = (yDir == 0 ? random.nextInt(60) : new MathHelper().clamp(random.nextInt(300), 60, 300));
             yTimes = 0;
         }
         if(this.x + 64 <= 0 || this.hits <= 0) {

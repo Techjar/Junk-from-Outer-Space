@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
@@ -47,7 +45,7 @@ public class SpaceJunk {
     private static DisplayMode DISPLAY_MODE;
     private int score, deaths, curLevel, nextRand;
     private long lastAsteroid, time, startTime, pauseTime;
-    private UnicodeFont batmfa20, batmfa40;
+    private UnicodeFont batmfa20, batmfa60;
     public SoundManager soundManager;
     private Random random = new Random();
     private Texture bg;
@@ -59,9 +57,11 @@ public class SpaceJunk {
      * @param width display width
      * @param height display height
      */
-    public SpaceJunk(int difficulty, DisplayMode mode, boolean fullscreen, boolean vSync) throws LWJGLException, SlickException, FileNotFoundException, IOException {
+    public SpaceJunk(int difficulty, DisplayMode mode, boolean fullscreen, boolean vSync, float musicVolume, float soundVolume) throws LWJGLException, SlickException, FileNotFoundException, IOException {
         // Setup sound manager
         soundManager = new SoundManager();
+        soundManager.setMusicVolume(musicVolume);
+        soundManager.setSoundVolume(soundVolume);
 
         // Store these
         DIFFICULTY = difficulty;
@@ -100,11 +100,11 @@ public class SpaceJunk {
         //batmfa20.getEffects().add(new ShadowEffect(java.awt.Color.DARK_GRAY, 3, 3, 0.3F));
         batmfa20.loadGlyphs();
 
-        batmfa40 = new UnicodeFont("resources/fonts/batmfa_.ttf", 40, false, false);
-        batmfa40.addAsciiGlyphs();
-        batmfa40.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-        batmfa40.getEffects().add(new OutlineEffect(1, java.awt.Color.LIGHT_GRAY));
-        batmfa40.loadGlyphs();
+        batmfa60 = new UnicodeFont("resources/fonts/batmfa_.ttf", 60, false, false);
+        batmfa60.addAsciiGlyphs();
+        batmfa60.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+        batmfa60.getEffects().add(new OutlineEffect(2, java.awt.Color.LIGHT_GRAY));
+        batmfa60.loadGlyphs();
 
         // Keyboard
         Keyboard.create();
@@ -216,6 +216,10 @@ public class SpaceJunk {
                     pauseTime = Calendar.getInstance().getTimeInMillis();
                 }
             }
+            if(Keyboard.getEventKey() == Keyboard.KEY_F5) soundManager.setSoundVolume(soundManager.getSoundVolume() - 0.1F);
+            if(Keyboard.getEventKey() == Keyboard.KEY_F6) soundManager.setSoundVolume(soundManager.getSoundVolume() + 0.1F);
+            if(Keyboard.getEventKey() == Keyboard.KEY_F7) soundManager.setMusicVolume(soundManager.getMusicVolume() - 0.1F);
+            if(Keyboard.getEventKey() == Keyboard.KEY_F8) soundManager.setMusicVolume(soundManager.getMusicVolume() + 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F9) soundManager.playRandomMusic();
             if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();
             if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
@@ -244,19 +248,7 @@ public class SpaceJunk {
     private void render() {
         glClear(GL_COLOR_BUFFER_BIT);
         glLoadIdentity();
-
-        //Draw a basic square
-        /*glTranslatef(x, y, 0);
-        glRotatef(135, 0, 0, 1);
-        glTranslatef(-(100 >> 1), -(100 >> 1), 0);
-        glColor3f(0, 0.5F, 0.5F);
-        glBegin(GL_TRIANGLES);
-            glTexCoord2f(0, 0); glVertex2f(0, 0);
-            glTexCoord2f(1, 0); glVertex2f(100, -50);
-            glTexCoord2f(1, 1); glVertex2f(50, 50);
-            //glTexCoord2f(0, 1); glVertex2f(0, 100);
-        glEnd();*/
-
+        
         drawBg();
         Sprite sprite = null;
         for(int i = 0; i < sprites.size(); i++) {
@@ -267,8 +259,10 @@ public class SpaceJunk {
         }
         for(int i = 0; i < sprites.size(); i++) {
             sprite = sprites.get(i);
-            if(!sprite.isVisible()) sprites.remove(sprite);
-            if(!sprite.isVisible() && sprite instanceof Sprite2Asteroid) asteroids.remove(sprite);
+            if(!(sprite instanceof Sprite0Ship)) {
+                if(!sprite.isVisible()) sprites.remove(sprite);
+                if(!sprite.isVisible() && sprite instanceof Sprite2Asteroid) asteroids.remove(sprite);
+            }
         }
 
         try {
@@ -348,7 +342,7 @@ public class SpaceJunk {
 
 	// translate to the right location and prepare to draw
 	glTranslatef(0, 0, 0);
-    	glColor4f(0.2F, 0.2F, 0.2F, 0.7F);
+    	glColor4f(0, 0, 0, 0.8F);
 
 	// draw a quad textured to match the sprite
     	glBegin(GL_QUADS);
@@ -362,7 +356,7 @@ public class SpaceJunk {
         glEnable(GL_TEXTURE_2D);
 
         // draw text
-        batmfa40.drawString((DISPLAY_WIDTH - batmfa40.getWidth("PAUSED")) / 2, (DISPLAY_HEIGHT - batmfa40.getHeight("PAUSED")) / 2, "PAUSED", Color.red);
+        batmfa60.drawString((DISPLAY_WIDTH - batmfa60.getWidth("PAUSED")) / 2, (DISPLAY_HEIGHT - batmfa60.getHeight("PAUSED")) / 2, "PAUSED", Color.red);
 
 	// restore the model view matrix to prevent contamination
 	glPopMatrix();
@@ -371,7 +365,7 @@ public class SpaceJunk {
     private void generateAsteroid() {
         Calendar cal = Calendar.getInstance();
         if((cal.getTimeInMillis() - lastAsteroid) >= nextRand) {
-            Sprite newSprite = new Sprite2Asteroid(sprites, DISPLAY_WIDTH, random.nextInt(DISPLAY_HEIGHT), this);
+            Sprite newSprite = new Sprite2Asteroid(sprites, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this);
             sprites.add(newSprite); asteroids.add(newSprite);
             lastAsteroid = cal.getTimeInMillis();
             nextRand = random.nextInt(new MathHelper().clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
@@ -382,7 +376,7 @@ public class SpaceJunk {
         for(int i = 0; i < asteroids.size(); i++) {
             Sprite2Asteroid asteroid = (Sprite2Asteroid)asteroids.get(i);
             if(sprite instanceof Sprite0Ship) {
-                if(!((Sprite0Ship)sprite).isHit()) {
+                if(!((Sprite0Ship)sprite).isHit() && !((Sprite0Ship)sprite).isInvincible()) {
                     Bounds b1 = new Bounds(sprite.getX(), sprite.getY(), sprite.getX() + 32, sprite.getY() + 32);
                     Bounds b2 = new Bounds(asteroid.getX() - 40, asteroid.getY() - 50, asteroid.getX() + 40, asteroid.getY() + 50);
                     if(b1.intersect(b2)) {

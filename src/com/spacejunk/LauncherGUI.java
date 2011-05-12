@@ -6,13 +6,17 @@
 
 package com.spacejunk;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import com.spacejunk.util.ResolutionSorter;
 
 /**
  * 
@@ -22,6 +26,7 @@ public class LauncherGUI extends JFrame {
     private JComboBox resMenu, diffMenu;
     private JCheckBox fullscreen, vSync;
     private DisplayMode[] displayModes = Display.getAvailableDisplayModes();
+    private List<DisplayMode> modeList = new ArrayList<DisplayMode>();
 
 
     public LauncherGUI(String title) throws LWJGLException {
@@ -31,10 +36,15 @@ public class LauncherGUI extends JFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, 1));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         mainPanel.add(Box.createVerticalStrut(5));
-        String[] modeNames = new String[displayModes.length];
         for (int i = 0; i < displayModes.length; i++) {
-            DisplayMode current = displayModes[i];
-            modeNames[i] = current.getWidth() + "x" + current.getHeight() + "x" + current.getBitsPerPixel() + " " + current.getFrequency() + "Hz";
+            DisplayMode cur = displayModes[i]; DisplayMode def = Display.getDesktopDisplayMode();
+            if(cur.getBitsPerPixel() == def.getBitsPerPixel() && cur.getFrequency() == def.getFrequency()) modeList.add(cur);
+        }
+        Collections.sort(modeList, new ResolutionSorter());
+        String[] modeNames = new String[modeList.size()];
+        for(int i = 0; i < modeList.size(); i++) {
+            DisplayMode cur = modeList.get(i);
+            modeNames[i] = cur.getWidth() + "x" + cur.getHeight();
         }
         String[] diffModes = {"Easy", "Normal", "Hard", "Expert", "Oh God..."};
         Box box;
@@ -85,7 +95,7 @@ public class LauncherGUI extends JFrame {
             SpaceJunk ast = null;
             try {
                 setVisible(false);
-                ast = new SpaceJunk(getDifficulty(diffMenu.getSelectedIndex()), displayModes[resMenu.getSelectedIndex()], fullscreen.isSelected(), vSync.isSelected());
+                ast = new SpaceJunk(getDifficulty(diffMenu.getSelectedIndex()), modeList.get(resMenu.getSelectedIndex()), fullscreen.isSelected(), vSync.isSelected(), 1, 1);
                 ast.create();
                 ast.run();
             }

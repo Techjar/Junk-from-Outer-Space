@@ -14,6 +14,7 @@ import java.util.HashMap;
 import org.newdawn.slick.openal.Audio;
 import org.newdawn.slick.openal.AudioLoader;
 import org.newdawn.slick.openal.SoundStore;
+import com.spacejunk.util.MathHelper;
 
 /**
  * 
@@ -68,5 +69,21 @@ public class SoundManager {
     public void playSoundEffect(String name) {
         Audio sound = soundEffects.get(name);
         if(sound != null) sound.playAsSoundEffect(1, 1, false);
+    }
+
+    public void setMusicVolume(float volume) {
+        SoundStore.get().setMusicVolume(new MathHelper().clamp(volume, 0, 1));
+    }
+
+    public void setSoundVolume(float volume) {
+        SoundStore.get().setSoundVolume(new MathHelper().clamp(volume, 0, 1));
+    }
+
+    public float getMusicVolume() {
+        return SoundStore.get().getMusicVolume();
+    }
+
+    public float getSoundVolume() {
+        return SoundStore.get().getSoundVolume();
     }
 }

@@ -4,7 +4,7 @@
  */
 
 
-package com.spacejunk;
+package com.spacejunk.util;
 
 /**
  * 

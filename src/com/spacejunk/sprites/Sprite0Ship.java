@@ -24,8 +24,8 @@ import com.spacejunk.SoundManager;
 public class Sprite0Ship implements Sprite {
     private List<Sprite> sprites;
     private int id, x, y;
-    private long lastFire, hitTime;
-    private boolean visible, hit;
+    private long lastFire, hitTime, invTime, invForTime, invFrameTime;
+    private boolean visible, hit, invincible, invState;
     private Texture tex;
     private SoundManager sm;
 
@@ -33,7 +33,8 @@ public class Sprite0Ship implements Sprite {
     public Sprite0Ship(List sprites, int x, int y, SoundManager sm) {
         try {
             this.sprites = sprites;
-            this.id = 0; this.x = x; this.y = y; this.lastFire = 0; this.hitTime = 0; this.visible = true; this.hit = false;
+            this.id = 0; this.x = x; this.y = y; this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
+            this.visible = true; this.hit = false; this.invincible = false; this.invState = true;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/ship.png"), GL_NEAREST);
             this.sm = sm;
         }
@@ -45,6 +46,21 @@ public class Sprite0Ship implements Sprite {
     
     public void update() {
         Calendar cal = Calendar.getInstance();
+        invFrameTime++;
+        if(this.invincible) {
+            if(invFrameTime >= 2) {
+                invState = !invState;
+                invFrameTime = 0;
+            }
+
+            if((cal.getTimeInMillis() - invTime) >= invForTime) {
+                this.setInvincible(false);
+            }
+        }
+        else if(!invState) {
+            invState = true;
+        }
+
         if(!this.hit) {
             this.y = (Display.getDisplayMode().getHeight() - Mouse.getY()) - (tex.getImageHeight() / 2);
             if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 200) {
@@ -55,12 +71,21 @@ public class Sprite0Ship implements Sprite {
             }
         }
         else {
-            if((cal.getTimeInMillis() - hitTime) >= 2000) this.hit = false;
+            if((cal.getTimeInMillis() - hitTime) >= 2000) {
+                this.setVisible(true);
+                this.setInvincible(true); invTime = cal.getTimeInMillis(); invForTime = 1000;
+                this.hit = false;
+                Sprite sprite;
+                for(int i = 0; i < sprites.size(); i++) {
+                    sprite = sprites.get(i);
+                    if(sprite instanceof Sprite2Asteroid) sprite.setVisible(false);
+                }
+            }
         }
     }
 
     public void render() {
-        if(this.visible) {
+        if(this.visible & invState) {
             // store the current model matrix
             glPushMatrix();
 
@@ -70,7 +95,7 @@ public class Sprite0Ship implements Sprite {
             // translate to the right location and prepare to draw
             glTranslatef(x, y, 0);
             glRotatef(90, 0, 0, 1);
-            glColor3f(1, 1, 1);
+            if(this.invincible) glColor4f(1, 1, 1, 0.5F);
 
             // draw a quad textured to match the sprite
             glBegin(GL_QUADS);
@@ -106,11 +131,20 @@ public class Sprite0Ship implements Sprite {
     }
 
     public void hit() {
+        this.setVisible(false);
         this.hit = true;
         hitTime = Calendar.getInstance().getTimeInMillis();
     }
 
     public boolean isHit() {
         return this.hit;
+    }
+
+    public void setInvincible(boolean invincible) {
+        this.invincible = invincible;
+    }
+
+    public boolean isInvincible() {
+        return this.invincible;
     }
 }
