@@ -19,6 +19,7 @@ import org.newdawn.slick.opengl.Texture;
 import com.spacejunk.SoundManager;
 import com.spacejunk.util.*;
 import com.spacejunk.SpaceJunk;
+import com.spacejunk.particles.*;
 
 /**
  * 
@@ -26,6 +27,7 @@ import com.spacejunk.SpaceJunk;
  */
 public class Sprite2Asteroid implements Sprite {
     private List<Sprite> sprites;
+    private List<Particle> particles;
     private int id, x, y, z, hits, yDir, yTimes, yNextTime;
     private long flashTime;
     private boolean visible, rotDir, flash;
@@ -35,11 +37,11 @@ public class Sprite2Asteroid implements Sprite {
     private SpaceJunk sj;
 
 
-    public Sprite2Asteroid(List sprites, int x, int y, SpaceJunk sj) {
+    public Sprite2Asteroid(List sprites, List particles, int x, int y, SpaceJunk sj) {
         try {
             random = new Random();
             this.rotDir = random.nextBoolean();
-            this.sprites = sprites;
+            this.sprites = sprites; this.particles = particles;
             this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 5; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + random.nextInt(5) + ".png"), GL_NEAREST);
@@ -67,7 +69,15 @@ public class Sprite2Asteroid implements Sprite {
         }
         if(this.x + 64 <= 0 || this.hits <= 0) {
             this.setVisible(false);
-            if(this.hits <= 0) sj.incScore(1);
+            if(this.hits <= 0) {
+                try {
+                    particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, 1));
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+                sj.incScore(1);
+            }
         }
         if((Calendar.getInstance().getTimeInMillis() - flashTime) >= 100 && this.flash) this.flash = false;
     }
@@ -126,6 +136,14 @@ public class Sprite2Asteroid implements Sprite {
 
     public int getY() {
         return this.y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public void hit() {

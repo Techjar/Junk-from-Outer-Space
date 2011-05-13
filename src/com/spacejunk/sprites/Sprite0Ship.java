@@ -16,6 +16,8 @@ import org.lwjgl.opengl.Display;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.opengl.Texture;
 import com.spacejunk.SoundManager;
+import com.spacejunk.particles.*;
+import com.spacejunk.SpaceJunk;
 
 /**
  * 
@@ -23,20 +25,25 @@ import com.spacejunk.SoundManager;
  */
 public class Sprite0Ship implements Sprite {
     private List<Sprite> sprites;
+    private List<Particle> particles;
     private int id, x, y;
     private long lastFire, hitTime, invTime, invForTime, invFrameTime;
     private boolean visible, hit, invincible, invState;
     private Texture tex;
     private SoundManager sm;
+    private SpaceJunk sj;
+    private Particle1Jet jet;
 
 
-    public Sprite0Ship(List sprites, int x, int y, SoundManager sm) {
+    public Sprite0Ship(List sprites, List particles, int x, int y, SoundManager sm, SpaceJunk sj) {
         try {
-            this.sprites = sprites;
+            this.sprites = sprites; this.particles = particles;
             this.id = 0; this.x = x; this.y = y; this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
             this.visible = true; this.hit = false; this.invincible = false; this.invState = true;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/ship.png"), GL_NEAREST);
             this.sm = sm;
+            this.jet = new Particle1Jet(sj, this.x - 26, this.y + 16);
+            particles.add(jet);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -61,12 +68,14 @@ public class Sprite0Ship implements Sprite {
             invState = true;
         }
 
+        jet.setVisible(this.visible);
         if(!this.hit) {
             this.y = (Display.getDisplayMode().getHeight() - Mouse.getY()) - (tex.getImageHeight() / 2);
+            jet.setY(this.y + 16);
             if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 200) {
                 lastFire = cal.getTimeInMillis();
-                sprites.add(new Sprite1Gunfire(sprites, this.x, this.y - 3));
-                sprites.add(new Sprite1Gunfire(sprites, this.x, this.y + 19));
+                sprites.add(new Sprite1Gunfire(sprites, particles, this.x, this.y - 3));
+                sprites.add(new Sprite1Gunfire(sprites, particles, this.x, this.y + 19));
                 sm.playSoundEffect("ship.gunfire");
             }
         }
@@ -130,7 +139,21 @@ public class Sprite0Ship implements Sprite {
         return this.y;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
     public void hit() {
+        try {
+            particles.add(new Particle0Explosion(sj, this.x - 16, this.y + 16, 1500, 0));
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
         this.setVisible(false);
         this.hit = true;
         hitTime = Calendar.getInstance().getTimeInMillis();

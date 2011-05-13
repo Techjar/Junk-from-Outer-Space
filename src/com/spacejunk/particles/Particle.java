@@ -4,20 +4,19 @@
  */
 
 
-package com.spacejunk.sprites;
+package com.spacejunk.particles;
 
 /**
  * 
  * @author Techjar
  */
-public interface Sprite {
+public interface Particle {
     void update();
     void render();
-    int getID();
     void setVisible(boolean visible);
     boolean isVisible();
-    int getX();
-    int getY();
-    void setX(int x);
-    void setY(int y);
+    float getX();
+    float getY();
+    void setX(float x);
+    void setY(float y);
 }

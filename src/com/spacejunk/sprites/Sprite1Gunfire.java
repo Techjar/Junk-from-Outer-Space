@@ -14,7 +14,7 @@ import java.util.Calendar;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.opengl.Texture;
-import com.spacejunk.SoundManager;
+import com.spacejunk.particles.*;
 
 /**
  * 
@@ -22,6 +22,7 @@ import com.spacejunk.SoundManager;
  */
 public class Sprite1Gunfire implements Sprite {
     private List<Sprite> sprites;
+    private List<Particle> particles;
     private int id, x, y;
     private long lastfire;
     private boolean visible, used;
@@ -29,10 +30,10 @@ public class Sprite1Gunfire implements Sprite {
     private Calendar cal;
 
 
-    public Sprite1Gunfire(List sprites, int x, int y) {
+    public Sprite1Gunfire(List sprites, List particles, int x, int y) {
         try {
             this.cal = Calendar.getInstance();
-            this.sprites = sprites;
+            this.sprites = sprites; this.particles = particles;
             this.id = 1; this.x = x; this.y = y; this.lastfire = 0; this.visible = true; this.used = false;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/gunfire.png"), GL_NEAREST);
         }
@@ -91,6 +92,14 @@ public class Sprite1Gunfire implements Sprite {
 
     public int getY() {
         return this.y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public void setUsed(boolean used) {

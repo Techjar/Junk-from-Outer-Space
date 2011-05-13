@@ -33,6 +33,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import com.spacejunk.sprites.*;
+import com.spacejunk.particles.*;
 import com.spacejunk.util.*;
 
 /**
@@ -50,6 +51,7 @@ public class SpaceJunk {
     private Random random = new Random();
     private Texture bg;
     private List<Sprite> sprites, asteroids;
+    private List<Particle> particles;
 
 
     /**
@@ -74,6 +76,7 @@ public class SpaceJunk {
         score = 0; deaths = 0; curLevel = 1; nextRand = 0;
         lastAsteroid = 0; time = 0; startTime = 0; pauseTime = 0;
         sprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite>();
+        particles = new ArrayList<Particle>();
 
         // Display
         Display.setDisplayMode(mode);
@@ -169,7 +172,7 @@ public class SpaceJunk {
     private void init() {
         try {
             bg = TextureLoader.getTexture("JPG", new FileInputStream("resources/textures/bg.jpg"), GL_LINEAR);
-            sprites.add(new Sprite0Ship(sprites, 40, 0, soundManager));
+            sprites.add(new Sprite0Ship(sprites, particles, 48, 0, soundManager, this));
             soundManager.playRandomMusic();
             startTime = Calendar.getInstance().getTimeInMillis();
         }
@@ -265,6 +268,19 @@ public class SpaceJunk {
             }
         }
 
+        Particle particle = null;
+        for(int i = 0; i < particles.size(); i++) {
+            particle = particles.get(i);
+            if(Mouse.isGrabbed()) particle.update();
+            particle.render();
+        }
+        for(int i = 0; i < particles.size(); i++) {
+            particle = particles.get(i);
+            if(!(particle instanceof Particle1Jet)) {
+                if(!particle.isVisible()) particles.remove(particle);
+            }
+        }
+
         try {
             glPushMatrix();
             batmfa20.drawString(5, 1, "Time: " + time, Color.yellow);
@@ -287,7 +303,37 @@ public class SpaceJunk {
             startTime += Calendar.getInstance().getTimeInMillis() - pauseTime;
             pauseTime = Calendar.getInstance().getTimeInMillis();
         }
-        if(time >= 1080) curLevel = 20;
+        if(time >= 2960) curLevel = 50;
+        else if(time >= 2900) curLevel = 49;
+        else if(time >= 2840) curLevel = 48;
+        else if(time >= 2780) curLevel = 47;
+        else if(time >= 2720) curLevel = 46;
+        else if(time >= 2660) curLevel = 45;
+        else if(time >= 2600) curLevel = 44;
+        else if(time >= 2540) curLevel = 43;
+        else if(time >= 2480) curLevel = 42;
+        else if(time >= 2420) curLevel = 41;
+        else if(time >= 2360) curLevel = 40;
+        else if(time >= 2300) curLevel = 39;
+        else if(time >= 2240) curLevel = 38;
+        else if(time >= 2160) curLevel = 37;
+        else if(time >= 2100) curLevel = 36;
+        else if(time >= 2040) curLevel = 35;
+        else if(time >= 1980) curLevel = 34;
+        else if(time >= 1920) curLevel = 33;
+        else if(time >= 1860) curLevel = 32;
+        else if(time >= 1800) curLevel = 31;
+        else if(time >= 1740) curLevel = 30;
+        else if(time >= 1680) curLevel = 29;
+        else if(time >= 1620) curLevel = 28;
+        else if(time >= 1560) curLevel = 27;
+        else if(time >= 1500) curLevel = 26;
+        else if(time >= 1440) curLevel = 25;
+        else if(time >= 1380) curLevel = 24;
+        else if(time >= 1320) curLevel = 23;
+        else if(time >= 1260) curLevel = 22;
+        else if(time >= 1200) curLevel = 21;
+        else if(time >= 1140) curLevel = 20;
         else if(time >= 1020) curLevel = 19;
         else if(time >= 960) curLevel = 18;
         else if(time >= 900) curLevel = 17;
@@ -365,7 +411,7 @@ public class SpaceJunk {
     private void generateAsteroid() {
         Calendar cal = Calendar.getInstance();
         if((cal.getTimeInMillis() - lastAsteroid) >= nextRand) {
-            Sprite newSprite = new Sprite2Asteroid(sprites, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this);
+            Sprite newSprite = new Sprite2Asteroid(sprites, particles, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this);
             sprites.add(newSprite); asteroids.add(newSprite);
             lastAsteroid = cal.getTimeInMillis();
             nextRand = random.nextInt(new MathHelper().clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
