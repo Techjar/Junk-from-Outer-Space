@@ -29,8 +29,11 @@ public class SoundManager {
     public SoundManager() {
         try {
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
+
             soundEffects = new HashMap<String, Audio>();
             soundEffects.put("ship.gunfire", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/gunfire.wav")));
+            soundEffects.put("ambient.explode.0", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/explode0.wav")));
+            soundEffects.put("ambient.explode.1", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/explode1.wav")));
         }
         catch(Exception e) {
             e.printStackTrace();

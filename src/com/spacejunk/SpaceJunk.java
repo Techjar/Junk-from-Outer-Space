@@ -411,7 +411,7 @@ public class SpaceJunk {
     private void generateAsteroid() {
         Calendar cal = Calendar.getInstance();
         if((cal.getTimeInMillis() - lastAsteroid) >= nextRand) {
-            Sprite newSprite = new Sprite2Asteroid(sprites, particles, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this);
+            Sprite newSprite = new Sprite2Asteroid(sprites, particles, soundManager, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this);
             sprites.add(newSprite); asteroids.add(newSprite);
             lastAsteroid = cal.getTimeInMillis();
             nextRand = random.nextInt(new MathHelper().clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;

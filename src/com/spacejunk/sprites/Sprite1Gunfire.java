@@ -15,6 +15,7 @@ import org.lwjgl.opengl.Display;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.opengl.Texture;
 import com.spacejunk.particles.*;
+import com.spacejunk.SoundManager;
 
 /**
  * 
@@ -28,14 +29,16 @@ public class Sprite1Gunfire implements Sprite {
     private boolean visible, used;
     private Texture tex;
     private Calendar cal;
+    private SoundManager sm;
 
 
-    public Sprite1Gunfire(List sprites, List particles, int x, int y) {
+    public Sprite1Gunfire(List sprites, List particles, SoundManager sm, int x, int y) {
         try {
             this.cal = Calendar.getInstance();
             this.sprites = sprites; this.particles = particles;
             this.id = 1; this.x = x; this.y = y; this.lastfire = 0; this.visible = true; this.used = false;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/gunfire.png"), GL_NEAREST);
+            this.sm = sm;
         }
         catch(Exception e) {
             e.printStackTrace();

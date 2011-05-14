@@ -72,10 +72,10 @@ public class Sprite0Ship implements Sprite {
         if(!this.hit) {
             this.y = (Display.getDisplayMode().getHeight() - Mouse.getY()) - (tex.getImageHeight() / 2);
             jet.setY(this.y + 16);
-            if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 200) {
+            if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 50) {
                 lastFire = cal.getTimeInMillis();
-                sprites.add(new Sprite1Gunfire(sprites, particles, this.x, this.y - 3));
-                sprites.add(new Sprite1Gunfire(sprites, particles, this.x, this.y + 19));
+                sprites.add(new Sprite1Gunfire(sprites, particles, sm, this.x, this.y - 3));
+                sprites.add(new Sprite1Gunfire(sprites, particles, sm, this.x, this.y + 19));
                 sm.playSoundEffect("ship.gunfire");
             }
         }
@@ -150,6 +150,7 @@ public class Sprite0Ship implements Sprite {
     public void hit() {
         try {
             particles.add(new Particle0Explosion(sj, this.x - 16, this.y + 16, 1500, 0));
+            sm.playSoundEffect("ambient.explode.0");
         }
         catch(Exception e) {
             e.printStackTrace();

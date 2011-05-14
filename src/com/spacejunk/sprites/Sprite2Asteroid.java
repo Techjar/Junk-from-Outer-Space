@@ -37,7 +37,7 @@ public class Sprite2Asteroid implements Sprite {
     private SpaceJunk sj;
 
 
-    public Sprite2Asteroid(List sprites, List particles, int x, int y, SpaceJunk sj) {
+    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj) {
         try {
             random = new Random();
             this.rotDir = random.nextBoolean();
@@ -45,7 +45,7 @@ public class Sprite2Asteroid implements Sprite {
             this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 5; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + random.nextInt(5) + ".png"), GL_NEAREST);
-            //this.sm = new SoundManager();
+            this.sm = sm;
             this.sj = sj;
         }
         catch(Exception e) {
@@ -72,6 +72,7 @@ public class Sprite2Asteroid implements Sprite {
             if(this.hits <= 0) {
                 try {
                     particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, 1));
+                    sm.playSoundEffect("ambient.explode.1");
                 }
                 catch(Exception e) {
                     e.printStackTrace();
