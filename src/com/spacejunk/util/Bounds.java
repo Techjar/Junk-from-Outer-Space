@@ -11,50 +11,51 @@ package com.spacejunk.util;
  * @author Techjar
  */
 public class Bounds {
-    private int b1, b2, b3, b4;
+    private int x, y, width, height;
 
 
-    public Bounds(int b1, int b2, int b3, int b4) {
-        this.b1 = b1;
-        this.b2 = b2;
-        this.b3 = b3;
-        this.b4 = b4;
+    public Bounds(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
-    public boolean intersect(Bounds b) {
-        if(b1 >= b.getB1() && b2 >= b.getB2() && b3 <= b.getB3() && b4 <= b.getB4()) return true;
-        return false;
+    public boolean intersect(Bounds other) {
+        if ((this.x > (other.getX() + other.getWidth())) || ((this.x + this.width) < other.getX())) return false;
+        if ((this.y > (other.getY() + other.getHeight())) || ((this.y + this.height) < other.getY())) return false;
+        return true;
     }
 
-    public int getB1() {
-        return b1;
+    public int getHeight() {
+        return height;
     }
 
-    public void setB1(int b1) {
-        this.b1 = b1;
+    public void setHeight(int height) {
+        this.height = height;
     }
 
-    public int getB2() {
-        return b2;
+    public int getWidth() {
+        return width;
     }
 
-    public void setB2(int b2) {
-        this.b2 = b2;
+    public void setWidth(int width) {
+        this.width = width;
     }
 
-    public int getB3() {
-        return b3;
+    public int getX() {
+        return x;
     }
 
-    public void setB3(int b3) {
-        this.b3 = b3;
+    public void setX(int x) {
+        this.x = x;
     }
 
-    public int getB4() {
-        return b4;
+    public int getY() {
+        return y;
     }
 
-    public void setB4(int b4) {
-        this.b4 = b4;
+    public void setY(int y) {
+        this.y = y;
     }
 }

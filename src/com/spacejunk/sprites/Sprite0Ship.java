@@ -28,7 +28,7 @@ public class Sprite0Ship implements Sprite {
     private List<Particle> particles;
     private int id, x, y;
     private long lastFire, hitTime, invTime, invForTime, invFrameTime;
-    private boolean visible, hit, invincible, invState;
+    private boolean visible, hit, invincible, invState, respawning;
     private Texture tex;
     private SoundManager sm;
     private SpaceJunk sj;
@@ -39,7 +39,7 @@ public class Sprite0Ship implements Sprite {
         try {
             this.sprites = sprites; this.particles = particles;
             this.id = 0; this.x = x; this.y = y; this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
-            this.visible = true; this.hit = false; this.invincible = false; this.invState = true;
+            this.visible = true; this.hit = false; this.invincible = false; this.invState = true; this.respawning = false;
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/ship.png"), GL_NEAREST);
             this.sm = sm;
             this.jet = new Particle1Jet(sj, this.x - 26, this.y + 16);
@@ -62,6 +62,7 @@ public class Sprite0Ship implements Sprite {
 
             if((cal.getTimeInMillis() - invTime) >= invForTime) {
                 this.setInvincible(false);
+                this.respawning = false;
             }
         }
         else if(!invState) {
@@ -70,9 +71,10 @@ public class Sprite0Ship implements Sprite {
 
         jet.setVisible(this.visible);
         if(!this.hit) {
+            this.x = Mouse.getX() + (tex.getImageWidth() / 2);
             this.y = (Display.getDisplayMode().getHeight() - Mouse.getY()) - (tex.getImageHeight() / 2);
-            jet.setY(this.y + 16);
-            if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 50) {
+            jet.setX(this.x - 26); jet.setY(this.y + 16);
+            if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 200 && !this.respawning) {
                 lastFire = cal.getTimeInMillis();
                 sprites.add(new Sprite1Gunfire(sprites, particles, sm, this.x, this.y - 3));
                 sprites.add(new Sprite1Gunfire(sprites, particles, sm, this.x, this.y + 19));
@@ -84,6 +86,7 @@ public class Sprite0Ship implements Sprite {
                 this.setVisible(true);
                 this.setInvincible(true); invTime = cal.getTimeInMillis(); invForTime = 1000;
                 this.hit = false;
+                this.respawning = true;
                 Sprite sprite;
                 for(int i = 0; i < sprites.size(); i++) {
                     sprite = sprites.get(i);

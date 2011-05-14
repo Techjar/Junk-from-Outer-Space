@@ -44,7 +44,7 @@ public class SpaceJunk {
     private static int DISPLAY_WIDTH, DISPLAY_HEIGHT, DIFFICULTY;
     private static boolean FULLSCREEN;
     private static DisplayMode DISPLAY_MODE;
-    private int score, deaths, curLevel, nextRand;
+    private int score, deaths, curLevel, nextRand, lastMouseX, lastMouseY;
     private long lastAsteroid, time, startTime, pauseTime;
     private UnicodeFont batmfa20, batmfa60;
     public SoundManager soundManager;
@@ -211,9 +211,16 @@ public class SpaceJunk {
     private void processKeyboard() {
         while(Keyboard.next() && Keyboard.getEventKeyState()) {
             if(Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+                if(Mouse.isGrabbed()) {
+                    lastMouseX = Mouse.getX();
+                    lastMouseY = Mouse.getY();
+                }
+                else {
+                    Mouse.setCursorPosition(lastMouseX, lastMouseY);
+                }
+
                 Mouse.setGrabbed(!Mouse.isGrabbed());
                 if(Mouse.isGrabbed()) {
-                    
                 }
                 else {
                     pauseTime = Calendar.getInstance().getTimeInMillis();
@@ -245,7 +252,6 @@ public class SpaceJunk {
     }
 
     private void processMouse() {
-
     }
 
     private void render() {
@@ -421,10 +427,10 @@ public class SpaceJunk {
     private boolean processCollision(Sprite sprite) {
         for(int i = 0; i < asteroids.size(); i++) {
             Sprite2Asteroid asteroid = (Sprite2Asteroid)asteroids.get(i);
+            Bounds b2 = new Bounds(asteroid.getX() - 32, asteroid.getY() - 32, 64, 64);
             if(sprite instanceof Sprite0Ship) {
                 if(!((Sprite0Ship)sprite).isHit() && !((Sprite0Ship)sprite).isInvincible()) {
-                    Bounds b1 = new Bounds(sprite.getX(), sprite.getY(), sprite.getX() + 32, sprite.getY() + 32);
-                    Bounds b2 = new Bounds(asteroid.getX() - 40, asteroid.getY() - 50, asteroid.getX() + 40, asteroid.getY() + 50);
+                    Bounds b1 = new Bounds(sprite.getX() - 32, sprite.getY(), 32, 32);
                     if(b1.intersect(b2)) {
                         deaths++;
                         this.decScore(DIFFICULTY * 2);
@@ -434,8 +440,7 @@ public class SpaceJunk {
             }
             else if(sprite instanceof Sprite1Gunfire) {
                 if(!((Sprite1Gunfire)sprite).isUsed()) {
-                    Bounds b1 = new Bounds(sprite.getX(), sprite.getY(), sprite.getX() + 16, sprite.getY() + 16);
-                    Bounds b2 = new Bounds(asteroid.getX() - 40, asteroid.getY() - 40, asteroid.getX() + 40, asteroid.getY() + 40);
+                    Bounds b1 = new Bounds(sprite.getX() - 16, sprite.getY(), 16, 16);
                     if(b1.intersect(b2)) {
                         asteroid.hit();
                         sprite.setVisible(false);
