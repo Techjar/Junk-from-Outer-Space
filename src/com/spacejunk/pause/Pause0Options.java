@@ -51,8 +51,8 @@ public class Pause0Options implements Pause {
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 108, 200, 2, Color.darkGray);
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 138, 200, 2, Color.darkGray);
 
-        Bounds mus = new Bounds(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18);
-        Bounds snd = new Bounds(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18);
+        Bounds mus = new Bounds(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18);
+        Bounds snd = new Bounds(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18);
         Bounds back = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth("BACK")) / 2, 180, font.getWidth("BACK"), font.getHeight("BACK"));
         drawSlider(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18, mouse.intersects(mus) || this.pressed == 1 ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         drawSlider(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18, mouse.intersects(snd) || this.pressed == 2 ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
