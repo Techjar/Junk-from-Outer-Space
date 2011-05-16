@@ -21,7 +21,7 @@ public class Bounds {
         this.height = height;
     }
 
-    public boolean intersect(Bounds other) {
+    public boolean intersects(Bounds other) {
         if ((this.x > (other.getX() + other.getWidth())) || ((this.x + this.width) < other.getX())) return false;
         if ((this.y > (other.getY() + other.getHeight())) || ((this.y + this.height) < other.getY())) return false;
         return true;

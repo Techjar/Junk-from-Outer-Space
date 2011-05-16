@@ -8,14 +8,13 @@ package com.spacejunk.sprites;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import java.io.FileInputStream;
 import java.util.List;
-import java.util.Calendar;
 import org.lwjgl.opengl.Display;
-import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.opengl.Texture;
 import com.spacejunk.particles.*;
 import com.spacejunk.SoundManager;
+import com.spacejunk.SpaceJunk;
+import com.spacejunk.util.*;
 
 /**
  * 
@@ -26,29 +25,28 @@ public class Sprite1Gunfire implements Sprite {
     private List<Particle> particles;
     private int id, x, y;
     private long lastfire;
-    private boolean visible, used;
+    private boolean visible;
     private Texture tex;
-    private Calendar cal;
     private SoundManager sm;
+    private Bounds bounds;
+    private SpaceJunk sj;
+    private TickCounter tc;
 
 
-    public Sprite1Gunfire(List sprites, List particles, SoundManager sm, int x, int y) {
-        try {
-            this.cal = Calendar.getInstance();
-            this.sprites = sprites; this.particles = particles;
-            this.id = 1; this.x = x; this.y = y; this.lastfire = 0; this.visible = true; this.used = false;
-            this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/gunfire.png"), GL_NEAREST);
-            this.sm = sm;
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+    public Sprite1Gunfire(SpaceJunk sj, List sprites, List particles, SoundManager sm, int x, int y, Texture tex) {
+        this.sj = sj;
+        this.tc = sj.getTickCounter();
+        this.sprites = sprites; this.particles = particles;
+        this.id = 1; this.x = x; this.y = y; this.lastfire = 0; this.visible = true;
+        this.tex = tex;
+        this.sm = sm;
+        this.bounds = new Bounds(this.x - 16, this.y, 16, 16);
     }
 
     public void update() {
         this.x += 10;
         if((this.x - 16) > Display.getDisplayMode().getWidth()) this.setVisible(false);
+        bounds.setX(this.x - 16); bounds.setY(this.y);
     }
 
     public void render() {
@@ -105,11 +103,7 @@ public class Sprite1Gunfire implements Sprite {
         this.y = y;
     }
 
-    public void setUsed(boolean used) {
-        this.used = used;
-    }
-
-    public boolean isUsed() {
-        return this.used;
+    public Bounds getBounds() {
+        return this.bounds;
     }
 }

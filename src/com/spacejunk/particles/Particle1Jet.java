@@ -7,7 +7,6 @@
 package com.spacejunk.particles;
 
 import java.io.IOException;
-import java.util.Calendar;
 import org.newdawn.slick.particles.*;
 import com.spacejunk.SpaceJunk;
 
@@ -16,12 +15,14 @@ import com.spacejunk.SpaceJunk;
  * @author Techjar
  */
 public class Particle1Jet implements Particle {
+    private SpaceJunk sj;
     private ParticleSystem sys;
     private float x, y;
 
 
-    public Particle1Jet(SpaceJunk sj, float x, float y) throws IOException {
-        this.sys = ParticleIO.loadConfiguredSystem("resources/particles/jet.xml");
+    public Particle1Jet(SpaceJunk sj, float x, float y, int type) throws IOException {
+        this.sj = sj;
+        this.sys = ParticleIO.loadConfiguredSystem("resources/particles/jet" + type + ".xml");
         this.x = x; this.y = y;
     }
 

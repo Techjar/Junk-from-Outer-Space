@@ -10,7 +10,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 import java.io.FileInputStream;
 import java.util.List;
-import java.util.Calendar;
+import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.opengl.TextureLoader;
@@ -18,6 +18,7 @@ import org.newdawn.slick.opengl.Texture;
 import com.spacejunk.SoundManager;
 import com.spacejunk.particles.*;
 import com.spacejunk.SpaceJunk;
+import com.spacejunk.util.*;
 
 /**
  * 
@@ -29,20 +30,29 @@ public class Sprite0Ship implements Sprite {
     private int id, x, y;
     private long lastFire, hitTime, invTime, invForTime, invFrameTime;
     private boolean visible, hit, invincible, invState, respawning;
-    private Texture tex;
+    private List<String> powerups;
+    private Texture tex, guntex;
     private SoundManager sm;
     private SpaceJunk sj;
     private Particle1Jet jet;
+    private Bounds bounds;
+    private TickCounter tc;
 
 
     public Sprite0Ship(List sprites, List particles, int x, int y, SoundManager sm, SpaceJunk sj) {
         try {
+            this.sj = sj;
+            this.tc = sj.getTickCounter();
             this.sprites = sprites; this.particles = particles;
-            this.id = 0; this.x = x; this.y = y; this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
+            this.id = 0; this.x = x; this.y = y;
+            this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
             this.visible = true; this.hit = false; this.invincible = false; this.invState = true; this.respawning = false;
+            this.powerups = new ArrayList<String>();
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/ship.png"), GL_NEAREST);
+            this.guntex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/gunfire.png"), GL_LINEAR);
             this.sm = sm;
-            this.jet = new Particle1Jet(sj, this.x - 26, this.y + 16);
+            this.jet = new Particle1Jet(sj, this.x - 26, this.y + 16, 0);
+            this.bounds = new Bounds(this.x - 28, this.y + 2, tex.getImageWidth(), tex.getImageHeight());
             particles.add(jet);
         }
         catch(Exception e) {
@@ -52,7 +62,6 @@ public class Sprite0Ship implements Sprite {
     }
     
     public void update() {
-        Calendar cal = Calendar.getInstance();
         invFrameTime++;
         if(this.invincible) {
             if(invFrameTime >= 2) {
@@ -60,7 +69,7 @@ public class Sprite0Ship implements Sprite {
                 invFrameTime = 0;
             }
 
-            if((cal.getTimeInMillis() - invTime) >= invForTime) {
+            if((tc.getTickMillis() - invTime) >= invForTime) {
                 this.setInvincible(false);
                 this.respawning = false;
             }
@@ -74,17 +83,24 @@ public class Sprite0Ship implements Sprite {
             this.x = Mouse.getX() + (tex.getImageWidth() / 2);
             this.y = (Display.getDisplayMode().getHeight() - Mouse.getY()) - (tex.getImageHeight() / 2);
             jet.setX(this.x - 26); jet.setY(this.y + 16);
-            if(Mouse.isButtonDown(0) && (cal.getTimeInMillis() - lastFire) >= 200 && !this.respawning) {
-                lastFire = cal.getTimeInMillis();
-                sprites.add(new Sprite1Gunfire(sprites, particles, sm, this.x, this.y - 3));
-                sprites.add(new Sprite1Gunfire(sprites, particles, sm, this.x, this.y + 19));
-                sm.playSoundEffect("ship.gunfire");
+            if(!this.respawning) {
+                if(Mouse.isButtonDown(0)) {
+                    if((powerups.contains(Powerup.FASTSHOT) && tc.getTickMillis() - lastFire >= 40) || tc.getTickMillis() - lastFire >= 200) {
+                        lastFire = tc.getTickMillis();
+                        sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x, this.y - 3, this.guntex));
+                        sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x, this.y + 19, this.guntex));
+                        sm.playSoundEffect("ship.gunfire", false);
+                    }
+                }
+                if(Mouse.isButtonDown(1)) {
+                    
+                }
             }
         }
         else {
-            if((cal.getTimeInMillis() - hitTime) >= 2000) {
+            if((tc.getTickMillis() - hitTime) >= 2000) {
                 this.setVisible(true);
-                this.setInvincible(true); invTime = cal.getTimeInMillis(); invForTime = 1000;
+                this.setInvincible(true); invTime = tc.getTickMillis(); invForTime = 1000;
                 this.hit = false;
                 this.respawning = true;
                 Sprite sprite;
@@ -94,6 +110,7 @@ public class Sprite0Ship implements Sprite {
                 }
             }
         }
+        bounds.setX(this.x - 28); bounds.setY(this.y + 2);
     }
 
     public void render() {
@@ -153,14 +170,14 @@ public class Sprite0Ship implements Sprite {
     public void hit() {
         try {
             particles.add(new Particle0Explosion(sj, this.x - 16, this.y + 16, 1500, 0));
-            sm.playSoundEffect("ambient.explode.0");
+            sm.playSoundEffect("ambient.explode.0", false);
         }
         catch(Exception e) {
             e.printStackTrace();
         }
         this.setVisible(false);
         this.hit = true;
-        hitTime = Calendar.getInstance().getTimeInMillis();
+        hitTime = tc.getTickMillis();
     }
 
     public boolean isHit() {
@@ -173,5 +190,9 @@ public class Sprite0Ship implements Sprite {
 
     public boolean isInvincible() {
         return this.invincible;
+    }
+
+    public Bounds getBounds() {
+        return this.bounds;
     }
 }

@@ -10,13 +10,7 @@ package com.spacejunk.util;
  * Class containing extra math-based commands which don't exist in Java.lang.Math, such as clamp().
  * @author Techjar
  */
-public class MathHelper {
-    /**
-     * Creates a new MathHelper.
-     */
-    public MathHelper() {
-    }
-    
+public abstract class MathHelper {
     /**
      * Converts input number to a number within the specified range.
      * @param i input number
@@ -24,7 +18,7 @@ public class MathHelper {
      * @param high maximum range
      * @return clamped number
      */
-    public int clamp(int i, int low, int high) {
+    public static int clamp(int i, int low, int high) {
         return Math.max(Math.min(i, high), low);
     }
 
@@ -35,7 +29,7 @@ public class MathHelper {
      * @param high maximum range
      * @return clamped number
      */
-    public long clamp(long i, long low, long high) {
+    public static long clamp(long i, long low, long high) {
         return Math.max(Math.min(i, high), low);
     }
 
@@ -46,7 +40,7 @@ public class MathHelper {
      * @param high maximum range
      * @return clamped number
      */
-    public double clamp(double i, double low, double high) {
+    public static double clamp(double i, double low, double high) {
         return Math.max(Math.min(i, high), low);
     }
 
@@ -57,7 +51,7 @@ public class MathHelper {
      * @param high maximum range
      * @return clamped number
      */
-    public float clamp(float i, float low, float high) {
+    public static float clamp(float i, float low, float high) {
         return Math.max(Math.min(i, high), low);
     }
 
@@ -68,9 +62,9 @@ public class MathHelper {
      * @param high maximum range
      * @return looped number
      */
-    public int loop(int i, int low, int high) {
-        if(i < low) return high;
-        if(i > high) return low;
+    public static int loop(int i, int low, int high) {
+        if(i < low) return high - (low - i);
+        if(i > high) return low + (i - high);
         return i;
     }
 
@@ -81,9 +75,9 @@ public class MathHelper {
      * @param high maximum range
      * @return looped number
      */
-    public long loop(long i, long low, long high) {
-        if(i < low) return high;
-        if(i > high) return low;
+    public static long loop(long i, long low, long high) {
+        if(i < low) return high - (low - i);
+        if(i > high) return low + (i - high);
         return i;
     }
 
@@ -94,9 +88,9 @@ public class MathHelper {
      * @param high maximum range
      * @return looped number
      */
-    public double loop(double i, double low, double high) {
-        if(i < low) return high;
-        if(i > high) return low;
+    public static double loop(double i, double low, double high) {
+        if(i < low) return high - (low - i);
+        if(i > high) return low + (i - high);
         return i;
     }
 
@@ -107,9 +101,9 @@ public class MathHelper {
      * @param high maximum range
      * @return looped number
      */
-    public float loop(float i, float low, float high) {
-        if(i < low) return high;
-        if(i > high) return low;
+    public static float loop(float i, float low, float high) {
+        if(i < low) return high - (low - i);
+        if(i > high) return low + (i - high);
         return i;
     }
 }

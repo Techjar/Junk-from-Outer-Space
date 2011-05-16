@@ -31,9 +31,13 @@ public class SoundManager {
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
 
             soundEffects = new HashMap<String, Audio>();
-            soundEffects.put("ship.gunfire", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/gunfire.wav")));
-            soundEffects.put("ambient.explode.0", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/explode0.wav")));
-            soundEffects.put("ambient.explode.1", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/explode1.wav")));
+            soundEffects.put("ui.button.click", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/click.wav")));
+            soundEffects.put("ui.button.clickrelease", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/clickrelease.wav")));
+            soundEffects.put("ui.button.rollover", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/rollover.wav")));
+            soundEffects.put("ship.gunfire", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ship/gunfire.wav")));
+            soundEffects.put("ambient.explode.0", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/0.wav")));
+            soundEffects.put("ambient.explode.1", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/1.wav")));
+            soundEffects.put("ambient.explode.2", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/2.wav")));
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -69,17 +73,22 @@ public class SoundManager {
         }
     }
     
-    public void playSoundEffect(String name) {
+    public int playSoundEffect(String name, boolean loop) {
         Audio sound = soundEffects.get(name);
-        if(sound != null) sound.playAsSoundEffect(1, 1, false);
+        if(sound != null) return sound.playAsSoundEffect(1, 1, loop);
+        return -1;
+    }
+
+    public void stopSoundEffect(int id) {
+        SoundStore.get().stopSoundEffect(id);
     }
 
     public void setMusicVolume(float volume) {
-        SoundStore.get().setMusicVolume(new MathHelper().clamp(volume, 0, 1));
+        SoundStore.get().setMusicVolume(MathHelper.clamp(volume, 0, 1));
     }
 
     public void setSoundVolume(float volume) {
-        SoundStore.get().setSoundVolume(new MathHelper().clamp(volume, 0, 1));
+        SoundStore.get().setSoundVolume(MathHelper.clamp(volume, 0, 1));
     }
 
     public float getMusicVolume() {

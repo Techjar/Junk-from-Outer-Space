@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -92,18 +91,18 @@ public class LauncherGUI extends JFrame {
 
     private class StartGameListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            SpaceJunk ast = null;
+            SpaceJunk sj = null;
             try {
                 setVisible(false);
-                ast = new SpaceJunk(getDifficulty(diffMenu.getSelectedIndex()), modeList.get(resMenu.getSelectedIndex()), fullscreen.isSelected(), vSync.isSelected(), 1, 1);
-                ast.create();
-                ast.run();
+                sj = new SpaceJunk(getDifficulty(diffMenu.getSelectedIndex()), modeList.get(resMenu.getSelectedIndex()), fullscreen.isSelected(), vSync.isSelected(), 1, 1);
+                sj.create();
+                sj.run();
             }
             catch(Exception e) {
                 e.printStackTrace();
             }
             finally {
-                if(ast != null) ast.destroy();
+                if(sj != null) sj.destroy();
                 System.exit(0);
             }
         }

@@ -6,6 +6,8 @@
 
 package com.spacejunk.sprites;
 
+import com.spacejunk.util.Bounds;
+
 /**
  * 
  * @author Techjar
@@ -20,4 +22,5 @@ public interface Sprite {
     int getY();
     void setX(int x);
     void setY(int y);
+    Bounds getBounds();
 }

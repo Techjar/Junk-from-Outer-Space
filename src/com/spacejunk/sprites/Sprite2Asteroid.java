@@ -8,13 +8,8 @@ package com.spacejunk.sprites;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import java.io.FileInputStream;
 import java.util.List;
-import java.util.Calendar;
 import java.util.Random;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.opengl.Texture;
 import com.spacejunk.SoundManager;
 import com.spacejunk.util.*;
@@ -35,18 +30,22 @@ public class Sprite2Asteroid implements Sprite {
     private Texture tex;
     private SoundManager sm;
     private SpaceJunk sj;
+    private Bounds bounds;
+    private TickCounter tc;
 
 
-    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj) {
+    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj, Texture tex) {
         try {
             random = new Random();
+            this.sj = sj;
+            this.tc = sj.getTickCounter();
             this.rotDir = random.nextBoolean();
             this.sprites = sprites; this.particles = particles;
             this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 5; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
-            this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + random.nextInt(5) + ".png"), GL_NEAREST);
+            this.tex = tex;
             this.sm = sm;
-            this.sj = sj;
+            this.bounds = new Bounds(this.x - 32, this.y - 32, 64, 64);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -57,14 +56,14 @@ public class Sprite2Asteroid implements Sprite {
     public void update() {
         this.x -= 2;
         this.y = this.y + yDir; yTimes++;
-        this.z = new MathHelper().loop((rotDir ? this.z + 2 : this.z - 2), 0, 360);
+        this.z = MathHelper.loop((rotDir ? this.z + 2 : this.z - 2), 0, 360);
         /*if(yTimesSmooth < 30 && yDir != 0 && nextY <= 1) {
             nextY += 0.03F;
             yTimesSmooth++;
         }*/
         if(yTimes >= yNextTime) {
             yDir = random.nextInt(3) - 1;
-            yNextTime = (yDir == 0 ? random.nextInt(60) : new MathHelper().clamp(random.nextInt(300), 60, 300));
+            yNextTime = (yDir == 0 ? random.nextInt(60) : MathHelper.clamp(random.nextInt(300), 60, 300));
             yTimes = 0;
         }
         if(this.x + 64 <= 0 || this.hits <= 0) {
@@ -72,7 +71,7 @@ public class Sprite2Asteroid implements Sprite {
             if(this.hits <= 0) {
                 try {
                     particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, 1));
-                    sm.playSoundEffect("ambient.explode.1");
+                    sm.playSoundEffect("ambient.explode.1", false);
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -80,7 +79,8 @@ public class Sprite2Asteroid implements Sprite {
                 sj.incScore(1);
             }
         }
-        if((Calendar.getInstance().getTimeInMillis() - flashTime) >= 100 && this.flash) this.flash = false;
+        if((tc.getTickMillis() - flashTime) >= 100 && this.flash) this.flash = false;
+        bounds.setX(this.x - 32); bounds.setY(this.y - 32);
     }
 
     public void render() {
@@ -147,9 +147,13 @@ public class Sprite2Asteroid implements Sprite {
         this.y = y;
     }
 
-    public void hit() {
+    public void hit(int damage) {
         this.flash = true;
-        this.hits--;
-        flashTime = Calendar.getInstance().getTimeInMillis();
+        this.hits -= damage;
+        flashTime = tc.getTickMillis();
+    }
+
+    public Bounds getBounds() {
+        return this.bounds;
     }
 }
