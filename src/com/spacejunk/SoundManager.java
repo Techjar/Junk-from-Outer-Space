@@ -29,7 +29,6 @@ public class SoundManager {
     public SoundManager() {
         try {
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
-
             soundEffects = new HashMap<String, Audio>();
             soundEffects.put("ui.button.click", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/click.wav")));
             soundEffects.put("ui.button.clickrelease", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/clickrelease.wav")));
@@ -53,10 +52,10 @@ public class SoundManager {
         nullMusic.playAsMusic(1, 1, false);
     }
 
-    public void playMusic(int track) {
+    public void playMusic(int track, boolean loop) {
         try {
             randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, true);
+            randMusic.playAsMusic(1, 1, loop);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -66,7 +65,7 @@ public class SoundManager {
     public void playRandomMusic() {
         try {
             randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + random.nextInt(14) + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, true);
+            randMusic.playAsMusic(1, 1, false);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -97,5 +96,9 @@ public class SoundManager {
 
     public float getSoundVolume() {
         return SoundStore.get().getSoundVolume();
+    }
+
+    public Audio getRandMusic() {
+        return randMusic;
     }
 }

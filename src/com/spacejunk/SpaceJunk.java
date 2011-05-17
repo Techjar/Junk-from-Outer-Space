@@ -35,6 +35,7 @@ import com.spacejunk.sprites.*;
 import com.spacejunk.particles.*;
 import com.spacejunk.util.*;
 import com.spacejunk.pause.*;
+import org.newdawn.slick.openal.SoundStore;
 
 /**
  * Actual SpaceJunk game object, contains the main code that makes the game work.
@@ -46,6 +47,7 @@ public class SpaceJunk {
     private static DisplayMode DISPLAY_MODE;
     private int score, deaths, curLevel, nextRand, lastMouseX, lastMouseY, pauseScreen;
     private long lastAsteroid, time, startTime;
+    private float lastMusicPos;
     private boolean mouseClicked;
     private String pauseHover;
     private UnicodeFont batmfa20, batmfa60;
@@ -81,7 +83,7 @@ public class SpaceJunk {
 
         // Default stuff
         score = 0; deaths = 0; curLevel = 1; nextRand = 0; pauseScreen = 0;
-        lastAsteroid = 0; time = 0; startTime = 0; pauseHover = "";
+        lastAsteroid = 0; time = 0; startTime = 0; pauseHover = ""; lastMusicPos = 0;
         sprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
         particles = new ArrayList<Particle>();
         atex = new Texture[5];
@@ -306,6 +308,7 @@ public class SpaceJunk {
     }
 
     private void update() {
+        if(!SoundStore.get().isMusicPlaying()) soundManager.playRandomMusic();
         if(Mouse.isGrabbed()) {
             tc.incTicks();
             time = (tc.getTickMillis() - startTime) / 1000;
