@@ -47,7 +47,6 @@ public class SpaceJunk {
     private static DisplayMode DISPLAY_MODE;
     private int score, deaths, curLevel, nextRand, lastMouseX, lastMouseY, pauseScreen;
     private long lastAsteroid, time, startTime;
-    private float lastMusicPos;
     private boolean mouseClicked;
     private String pauseHover;
     private UnicodeFont batmfa20, batmfa60;
@@ -83,7 +82,7 @@ public class SpaceJunk {
 
         // Default stuff
         score = 0; deaths = 0; curLevel = 1; nextRand = 0; pauseScreen = 0;
-        lastAsteroid = 0; time = 0; startTime = 0; pauseHover = ""; lastMusicPos = 0;
+        lastAsteroid = 0; time = 0; startTime = 0; pauseHover = "";
         sprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
         particles = new ArrayList<Particle>();
         atex = new Texture[5];
@@ -250,9 +249,10 @@ public class SpaceJunk {
             /*if(Keyboard.getEventKey() == Keyboard.KEY_F5) soundManager.setSoundVolume(soundManager.getSoundVolume() - 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F6) soundManager.setSoundVolume(soundManager.getSoundVolume() + 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F7) soundManager.setMusicVolume(soundManager.getMusicVolume() - 0.1F);
-            if(Keyboard.getEventKey() == Keyboard.KEY_F8) soundManager.setMusicVolume(soundManager.getMusicVolume() + 0.1F);*/
+            if(Keyboard.getEventKey() == Keyboard.KEY_F8) soundManager.setMusicVolume(soundManager.getMusicVolume() + 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F9) soundManager.playRandomMusic();
-            if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();
+            if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();*/
+            if(Keyboard.getEventKey() == Keyboard.KEY_F1) soundManager.playRandomMusic();
             if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
                 try {
                     if(!FULLSCREEN) Display.setDisplayModeAndFullscreen(Display.getDesktopDisplayMode());
