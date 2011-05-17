@@ -133,9 +133,9 @@ public class SpaceJunk {
 
         // Setup pause menu
         pauseMenu = new ArrayList<Pause>();
-        pauseMenu.add(new Pause2Resume(batmfa20, Color.white, soundManager));
-        pauseMenu.add(new Pause0Options(batmfa20, Color.white, soundManager));
-        pauseMenu.add(new Pause1Quit(batmfa20, Color.white, soundManager));
+        pauseMenu.add(new Pause2Resume(batmfa20, Color.white, soundManager, this));
+        pauseMenu.add(new Pause0Options(batmfa20, Color.white, soundManager, this));
+        pauseMenu.add(new Pause1Quit(batmfa20, Color.white, soundManager, this));
     }
 
     /**
@@ -251,24 +251,9 @@ public class SpaceJunk {
             if(Keyboard.getEventKey() == Keyboard.KEY_F7) soundManager.setMusicVolume(soundManager.getMusicVolume() - 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F8) soundManager.setMusicVolume(soundManager.getMusicVolume() + 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F9) soundManager.playRandomMusic();
-            if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();*/
+            if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();
+            if(Keyboard.getEventKey() == Keyboard.KEY_F11) changeDisplayMode(FULLSCREEN ? DISPLAY_MODE : Display.getDesktopDisplayMode(), !FULLSCREEN);*/
             if(Keyboard.getEventKey() == Keyboard.KEY_F1) soundManager.playRandomMusic();
-            if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
-                try {
-                    if(!FULLSCREEN) Display.setDisplayModeAndFullscreen(Display.getDesktopDisplayMode());
-                    else {
-                        Display.setFullscreen(false);
-                        Display.setDisplayMode(DISPLAY_MODE);
-                    }
-                    DISPLAY_WIDTH = Display.getDisplayMode().getWidth();
-                    DISPLAY_HEIGHT = Display.getDisplayMode().getHeight();
-                    FULLSCREEN = !FULLSCREEN;
-                    resizeGL();
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -461,6 +446,7 @@ public class SpaceJunk {
                         soundManager.playSoundEffect("ui.button.click", false);
                         pauseScreen = i + 1;
                         if(pause instanceof Pause2Resume) ((Pause2Resume)pause).setLastMouse(lastMouseX, lastMouseY);
+                        pause.setMouseClicked(true);
                         pause.setActive(true);
                         pause.renderScreen();
                         break;
@@ -543,6 +529,10 @@ public class SpaceJunk {
         return score;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
     public void incScore(int i) {
         score += i;
     }
@@ -567,5 +557,41 @@ public class SpaceJunk {
 
     public TickCounter getTickCounter() {
         return this.tc;
+    }
+
+    public int getDifficulty() {
+        return DIFFICULTY;
+    }
+
+    public void setDifficulty(int difficulty) {
+        DIFFICULTY = difficulty;
+    }
+
+    public void changeDisplayMode(DisplayMode mode, boolean fullscreen) {
+        try {
+            if(fullscreen) {
+                Display.setDisplayMode(mode);
+                Display.setFullscreen(true);
+            }
+            else {
+                Display.setFullscreen(false);
+                Display.setDisplayMode(mode);
+            }
+            DISPLAY_WIDTH = Display.getDisplayMode().getWidth();
+            DISPLAY_HEIGHT = Display.getDisplayMode().getHeight();
+            FULLSCREEN = fullscreen;
+            resizeGL();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void clearAsteroids() {
+        Sprite sprite;
+        for(int i = 0; i < sprites.size(); i++) {
+            sprite = sprites.get(i);
+            if(sprite instanceof Sprite2Asteroid) sprite.setVisible(false);
+        }
     }
 }

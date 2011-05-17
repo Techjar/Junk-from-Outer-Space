@@ -23,4 +23,5 @@ public interface Pause {
     boolean isActive();
     void setActive(boolean active);
     String getText();
+    void setMouseClicked(boolean clicked);
 }

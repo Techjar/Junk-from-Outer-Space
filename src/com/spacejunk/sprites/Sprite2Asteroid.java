@@ -23,7 +23,7 @@ import com.spacejunk.particles.*;
 public class Sprite2Asteroid implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y, z, hits, yDir, yTimes, yNextTime;
+    private int id, x, y, z, hits, yDir, yTimes, yNextTime, rotSpeed;
     private long flashTime;
     private boolean visible, rotDir, flash;
     private Random random;
@@ -40,6 +40,7 @@ public class Sprite2Asteroid implements Sprite {
             this.sj = sj;
             this.tc = sj.getTickCounter();
             this.rotDir = random.nextBoolean();
+            this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
             this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 5; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
@@ -56,7 +57,7 @@ public class Sprite2Asteroid implements Sprite {
     public void update() {
         this.x -= 2;
         this.y = this.y + yDir; yTimes++;
-        this.z = MathHelper.loop((rotDir ? this.z + 2 : this.z - 2), 0, 360);
+        this.z = MathHelper.loop((rotDir ? this.z + this.rotSpeed : this.z - this.rotSpeed), 0, 360);
         /*if(yTimesSmooth < 30 && yDir != 0 && nextY <= 1) {
             nextY += 0.03F;
             yTimesSmooth++;

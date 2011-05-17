@@ -12,6 +12,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 import com.spacejunk.util.Bounds;
 import com.spacejunk.SoundManager;
+import com.spacejunk.SpaceJunk;
 
 /**
  * 
@@ -19,7 +20,7 @@ import com.spacejunk.SoundManager;
  */
 public class Pause2Resume implements Pause {
     private int y, lastMouseX, lastMouseY;
-    private boolean active;
+    private boolean mouseClicked, active;
     private String text;
     private UnicodeFont font;
     private Color color;
@@ -27,9 +28,9 @@ public class Pause2Resume implements Pause {
     private Bounds bounds;
 
 
-    public Pause2Resume(UnicodeFont font, Color color, SoundManager sm) {
+    public Pause2Resume(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) {
         this.y = 0; this.lastMouseX = 0; this.lastMouseY = 0;
-        this.active = false;
+        this.mouseClicked = false; this.active = false;
         this.text = "RESUME GAME";
         this.sm = sm;
         this.color = color;
@@ -46,6 +47,7 @@ public class Pause2Resume implements Pause {
         this.setActive(false);
         Mouse.setCursorPosition(lastMouseX, lastMouseY);
         Mouse.setGrabbed(true);
+        if(!Mouse.isButtonDown(0) && this.mouseClicked) this.mouseClicked = false;
     }
 
     public Bounds getBounds() {
@@ -74,6 +76,10 @@ public class Pause2Resume implements Pause {
 
     public String getText() {
         return this.text;
+    }
+
+    public void setMouseClicked(boolean clicked) {
+        this.mouseClicked = clicked;
     }
 
     public void setLastMouse(int lastMouseX, int lastMouseY) {

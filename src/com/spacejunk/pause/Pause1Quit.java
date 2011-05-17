@@ -12,6 +12,7 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
 import com.spacejunk.util.Bounds;
 import com.spacejunk.SoundManager;
+import com.spacejunk.SpaceJunk;
 
 /**
  * 
@@ -19,7 +20,7 @@ import com.spacejunk.SoundManager;
  */
 public class Pause1Quit implements Pause {
     private int y;
-    private boolean active, hovered;
+    private boolean mouseClicked, active, hovered;
     private String text;
     private UnicodeFont font;
     private Color color;
@@ -27,9 +28,9 @@ public class Pause1Quit implements Pause {
     private Bounds bounds;
 
 
-    public Pause1Quit(UnicodeFont font, Color color, SoundManager sm) {
+    public Pause1Quit(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) {
         this.y = 0;
-        this.active = false; this.hovered = false;
+        this.mouseClicked = false; this.active = false; this.hovered = false;
         this.text = "QUIT";
         this.sm = sm;
         this.color = color;
@@ -59,7 +60,7 @@ public class Pause1Quit implements Pause {
             this.hovered = false;
         }
 
-        if(Mouse.isButtonDown(0)) {
+        if(Mouse.isButtonDown(0) && !this.mouseClicked) {
             if(mouse.intersects(yes)) {
                 sm.playSoundEffect("ui.button.click", false);
                 System.exit(0);
@@ -69,6 +70,7 @@ public class Pause1Quit implements Pause {
                 this.setActive(false);
             }
         }
+        if(!Mouse.isButtonDown(0) && this.mouseClicked) this.mouseClicked = false;
     }
 
     public Bounds getBounds() {
@@ -97,5 +99,9 @@ public class Pause1Quit implements Pause {
 
     public String getText() {
         return this.text;
+    }
+
+    public void setMouseClicked(boolean clicked) {
+        this.mouseClicked = clicked;
     }
 }

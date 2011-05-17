@@ -63,8 +63,8 @@ public abstract class MathHelper {
      * @return looped number
      */
     public static int loop(int i, int low, int high) {
-        if(i < low) return high - (low - i);
-        if(i > high) return low + (i - high);
+        if(i < low) return high - (low - (i + 1));
+        if(i > high) return low + (i - (high + 1));
         return i;
     }
 
@@ -76,8 +76,8 @@ public abstract class MathHelper {
      * @return looped number
      */
     public static long loop(long i, long low, long high) {
-        if(i < low) return high - (low - i);
-        if(i > high) return low + (i - high);
+        if(i < low) return high - (low - (i + 1));
+        if(i > high) return low + (i - (high + 1));
         return i;
     }
 
@@ -89,8 +89,8 @@ public abstract class MathHelper {
      * @return looped number
      */
     public static double loop(double i, double low, double high) {
-        if(i < low) return high - (low - i);
-        if(i > high) return low + (i - high);
+        if(i < low) return high - (low - (i + 1));
+        if(i > high) return low + (i - (high + 1));
         return i;
     }
 
@@ -102,8 +102,8 @@ public abstract class MathHelper {
      * @return looped number
      */
     public static float loop(float i, float low, float high) {
-        if(i < low) return high - (low - i);
-        if(i > high) return low + (i - high);
+        if(i < low) return high - (low - (i + 1));
+        if(i > high) return low + (i - (high + 1));
         return i;
     }
 }

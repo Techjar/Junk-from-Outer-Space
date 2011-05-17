@@ -103,11 +103,7 @@ public class Sprite0Ship implements Sprite {
                 this.setInvincible(true); invTime = tc.getTickMillis(); invForTime = 1000;
                 this.hit = false;
                 this.respawning = true;
-                Sprite sprite;
-                for(int i = 0; i < sprites.size(); i++) {
-                    sprite = sprites.get(i);
-                    if(sprite instanceof Sprite2Asteroid) sprite.setVisible(false);
-                }
+                sj.clearAsteroids();
             }
         }
         bounds.setX(this.x - 28); bounds.setY(this.y + 2);
