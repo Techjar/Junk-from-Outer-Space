@@ -153,10 +153,30 @@ public class Pause0Options implements Pause {
                 this.setActive(false);
             }
         }
+        else if(Mouse.isButtonDown(1) && !this.mouseClicked) {
+            if(mouse.intersects(diff) && this.pressed != 3) {
+                sm.playSoundEffect("ui.button.click", false);
+                this.pressed = 3;
+                this.difficulty = this.getDifficulty(MathHelper.loop(this.getDifficultyRev(this.difficulty) - 1, 0, 4));
+                sj.setDifficulty(this.difficulty);
+            }
+            if(mouse.intersects(disp) && this.pressed != 4) {
+                sm.playSoundEffect("ui.button.click", false);
+                this.pressed = 4;
+                this.displayInt = MathHelper.loop(this.displayInt - 1, 0, modeList.size() - 1);
+                this.displayMode = modeList.get(this.displayInt);
+                try {
+                    sj.changeDisplayMode(this.displayMode, Display.isFullscreen());
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         else {
             this.pressed = 0;
         }
-        if(!Mouse.isButtonDown(0) && this.mouseClicked) this.mouseClicked = false;
+        if(!Mouse.isButtonDown(0) && !Mouse.isButtonDown(1) && this.mouseClicked) this.mouseClicked = false;
     }
 
     public Bounds getBounds() {
