@@ -565,6 +565,7 @@ public class SpaceJunk {
 
     public void setDifficulty(int difficulty) {
         DIFFICULTY = difficulty;
+        nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
     }
 
     public void changeDisplayMode(DisplayMode mode, boolean fullscreen) {

@@ -42,7 +42,7 @@ public class Sprite2Asteroid implements Sprite {
             this.rotDir = random.nextBoolean();
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
-            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 5; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
+            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 3; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
             this.tex = tex;
             this.sm = sm;
