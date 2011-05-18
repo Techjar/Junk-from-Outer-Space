@@ -181,7 +181,7 @@ public class SpaceJunk {
                 }
             }
             Display.update();
-            Display.sync(Display.getDisplayMode().getFrequency());
+            Display.sync(Display.getDisplayMode().getFrequency() <= 0 ? 60 : Display.getDisplayMode().getFrequency());
         }
     }
 
