@@ -10,7 +10,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
-import com.spacejunk.util.Bounds;
+import org.newdawn.slick.geom.*;
 import com.spacejunk.SoundManager;
 import com.spacejunk.SpaceJunk;
 
@@ -25,7 +25,7 @@ public class Pause2Resume implements Pause {
     private UnicodeFont font;
     private Color color;
     private SoundManager sm;
-    private Bounds bounds;
+    private Shape bounds;
 
 
     public Pause2Resume(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) {
@@ -35,11 +35,11 @@ public class Pause2Resume implements Pause {
         this.sm = sm;
         this.color = color;
         this.font = font;
-        this.bounds = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
+        this.bounds = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
     }
 
     public void render() {
-        this.bounds = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
+        this.bounds = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
         font.drawString((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, this.text, this.color);
     }
 
@@ -50,7 +50,7 @@ public class Pause2Resume implements Pause {
         if(!Mouse.isButtonDown(0) && this.mouseClicked) this.mouseClicked = false;
     }
 
-    public Bounds getBounds() {
+    public Shape getBounds() {
         return this.bounds;
     }
 

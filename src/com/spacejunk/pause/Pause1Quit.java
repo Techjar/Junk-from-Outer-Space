@@ -10,7 +10,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
-import com.spacejunk.util.Bounds;
+import org.newdawn.slick.geom.*;
 import com.spacejunk.SoundManager;
 import com.spacejunk.SpaceJunk;
 
@@ -25,7 +25,7 @@ public class Pause1Quit implements Pause {
     private UnicodeFont font;
     private Color color;
     private SoundManager sm;
-    private Bounds bounds;
+    private Shape bounds;
 
 
     public Pause1Quit(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) {
@@ -35,20 +35,20 @@ public class Pause1Quit implements Pause {
         this.sm = sm;
         this.color = color;
         this.font = font;
-        this.bounds = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
+        this.bounds = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
     }
 
     public void render() {
-        this.bounds = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
+        this.bounds = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
         font.drawString((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, this.text, this.color);
     }
 
     public void renderScreen() {
-        Bounds mouse = new Bounds(Mouse.getX(), Display.getDisplayMode().getHeight() - Mouse.getY(), 1, 1);
+        Shape mouse = new Rectangle(Mouse.getX(), Display.getDisplayMode().getHeight() - Mouse.getY(), 1, 1);
         font.drawString((Display.getDisplayMode().getWidth() - font.getWidth("REALLY QUIT?")) / 2, ((Display.getDisplayMode().getHeight() - font.getHeight("REALLY QUIT?")) / 2) - 15, "REALLY QUIT?", Color.red);
 
-        Bounds yes = new Bounds(((Display.getDisplayMode().getWidth() - font.getWidth("YES")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("YES")) / 2) + 15, font.getWidth("YES"), font.getHeight("YES"));
-        Bounds no = new Bounds(((Display.getDisplayMode().getWidth() - font.getWidth("NO")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("NO")) / 2) + 15, font.getWidth("NO"), font.getHeight("NO"));
+        Shape yes = new Rectangle(((Display.getDisplayMode().getWidth() - font.getWidth("YES")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("YES")) / 2) + 15, font.getWidth("YES"), font.getHeight("YES"));
+        Shape no = new Rectangle(((Display.getDisplayMode().getWidth() - font.getWidth("NO")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("NO")) / 2) + 15, font.getWidth("NO"), font.getHeight("NO"));
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("YES")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("YES")) / 2) + 15, "YES", mouse.intersects(yes) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("NO")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("NO")) / 2) + 15, "NO", mouse.intersects(no) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
 
@@ -73,7 +73,7 @@ public class Pause1Quit implements Pause {
         if(!Mouse.isButtonDown(0) && this.mouseClicked) this.mouseClicked = false;
     }
 
-    public Bounds getBounds() {
+    public Shape getBounds() {
         return this.bounds;
     }
 

@@ -19,8 +19,10 @@ public class Main {
      * @param args command-line arguments
      */
     public static void main(String[] args) {
+        LauncherGUI launcher = null;
         try {
-            LauncherGUI launcher = new LauncherGUI("Junk from Outer Space Launcher");
+            if(args.length < 1) launcher = new LauncherGUI("Junk from Outer Space Launcher", false);
+            else launcher = new LauncherGUI("Junk from Outer Space Launcher", args[0].equalsIgnoreCase("render-collision"));
         }
         catch(Exception e) {
             e.printStackTrace();

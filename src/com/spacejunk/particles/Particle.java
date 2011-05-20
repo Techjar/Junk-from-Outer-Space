@@ -19,4 +19,5 @@ public interface Particle {
     float getY();
     void setX(float x);
     void setY(float y);
+    boolean renderFirst();
 }

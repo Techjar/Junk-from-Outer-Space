@@ -7,7 +7,7 @@
 package com.spacejunk.pause;
 
 import org.newdawn.slick.Color;
-import com.spacejunk.util.Bounds;
+import org.newdawn.slick.geom.*;
 
 /**
  * 
@@ -16,7 +16,7 @@ import com.spacejunk.util.Bounds;
 public interface Pause {
     void render();
     void renderScreen();
-    Bounds getBounds();
+    Shape getBounds();
     Color getColor();
     void setColor(Color color);
     void setTextY(int y);

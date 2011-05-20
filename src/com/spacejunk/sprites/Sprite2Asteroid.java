@@ -11,6 +11,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.List;
 import java.util.Random;
 import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.geom.*;
 import com.spacejunk.SoundManager;
 import com.spacejunk.util.*;
 import com.spacejunk.SpaceJunk;
@@ -23,18 +24,18 @@ import com.spacejunk.particles.*;
 public class Sprite2Asteroid implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y, z, hits, yDir, yTimes, yNextTime, rotSpeed;
+    private int id, x, y, z, hits, yDir, yTimes, yNextTime, rotSpeed, texnum, ySpeed;
     private long flashTime;
-    private boolean visible, rotDir, flash;
+    private boolean visible, rotDir, flash, useFullPoly;
     private Random random;
     private Texture tex;
     private SoundManager sm;
     private SpaceJunk sj;
-    private Bounds bounds;
+    private Shape hitbox, bounds;
     private TickCounter tc;
 
 
-    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj, Texture tex) {
+    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj, Texture tex, int texnum) {
         try {
             random = new Random();
             this.sj = sj;
@@ -42,11 +43,18 @@ public class Sprite2Asteroid implements Sprite {
             this.rotDir = random.nextBoolean();
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
-            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 3; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
+            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 2; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
             this.visible = true; this.flash = false;
+            this.useFullPoly = false; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
             this.tex = tex;
+            this.texnum = texnum;
+            this.ySpeed = random.nextInt(4) + 1;
             this.sm = sm;
-            this.bounds = new Bounds(this.x - 32, this.y - 32, 64, 64);
+            this.hitbox = new Polygon(this.getHitbox(this.texnum));
+            hitbox.setCenterX(this.x + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getX() : 0));
+            hitbox.setCenterY(this.y + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getY() : 0));
+            if(!this.useFullPoly) this.hitbox = new Rectangle(hitbox.getMinX(), hitbox.getMinY(), hitbox.getWidth(), hitbox.getHeight());
+            this.bounds = this.hitbox;
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -55,15 +63,15 @@ public class Sprite2Asteroid implements Sprite {
     }
 
     public void update() {
-        this.x -= 2;
         this.y = this.y + yDir; yTimes++;
-        this.z = MathHelper.loop((rotDir ? this.z + this.rotSpeed : this.z - this.rotSpeed), 0, 360);
+        this.x -= this.ySpeed;
+        this.z = MathHelper.loop(rotDir ? this.z + this.rotSpeed : this.z - this.rotSpeed, 0, 360);
         /*if(yTimesSmooth < 30 && yDir != 0 && nextY <= 1) {
             nextY += 0.03F;
             yTimesSmooth++;
         }*/
         if(yTimes >= yNextTime) {
-            yDir = random.nextInt(3) - 1;
+            yDir = random.nextInt(5) - 2;
             yNextTime = (yDir == 0 ? random.nextInt(60) : MathHelper.clamp(random.nextInt(300), 60, 300));
             yTimes = 0;
         }
@@ -81,7 +89,9 @@ public class Sprite2Asteroid implements Sprite {
             }
         }
         if((tc.getTickMillis() - flashTime) >= 100 && this.flash) this.flash = false;
-        bounds.setX(this.x - 32); bounds.setY(this.y - 32);
+        hitbox.setCenterX(this.x + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getX() : 0));
+        hitbox.setCenterY(this.y + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getY() : 0));
+        this.bounds = hitbox.transform(Transform.createRotateTransform((float)Math.toRadians(this.z), this.x, this.y));
     }
 
     public void render() {
@@ -154,7 +164,29 @@ public class Sprite2Asteroid implements Sprite {
         flashTime = tc.getTickMillis();
     }
 
-    public Bounds getBounds() {
+    public Shape getBounds() {
         return this.bounds;
+    }
+
+    private float[] getHitbox(int i) {
+        switch(i) {
+            case 0: return PolygonHitbox.ASTEROID_0;
+            case 1: return PolygonHitbox.ASTEROID_1;
+            case 2: return PolygonHitbox.ASTEROID_2;
+            case 3: return PolygonHitbox.ASTEROID_3;
+            case 4: return PolygonHitbox.ASTEROID_4;
+            default: return PolygonHitbox.ASTEROID_0;
+        }
+    }
+
+    private Vector2f getHitboxOffset(int i) {
+        switch(i) {
+            case 0: return new Vector2f(-1, 3);
+            case 1: return new Vector2f(1, -1);
+            case 2: return new Vector2f(-1, 1);
+            case 3: return new Vector2f(-2, -5);
+            case 4: return new Vector2f(-4, -4);
+            default: return new Vector2f(0, 0);
+        }
     }
 }

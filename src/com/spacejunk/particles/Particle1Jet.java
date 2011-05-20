@@ -17,11 +17,14 @@ import com.spacejunk.SpaceJunk;
 public class Particle1Jet implements Particle {
     private SpaceJunk sj;
     private ParticleSystem sys;
+    private int type;
     private float x, y;
+    private boolean shipJet;
 
 
-    public Particle1Jet(SpaceJunk sj, float x, float y, int type) throws IOException {
+    public Particle1Jet(SpaceJunk sj, float x, float y, int type, boolean shipJet) throws IOException {
         this.sj = sj;
+        this.type = type; this.shipJet = shipJet;
         this.sys = ParticleIO.loadConfiguredSystem("resources/particles/jet" + type + ".xml");
         this.x = x; this.y = y;
     }
@@ -56,5 +59,17 @@ public class Particle1Jet implements Particle {
 
     public void setY(float y) {
         this.y = y;
+    }
+
+    public int getType() {
+        return this.type;
+    }
+
+    public boolean isShipJet() {
+        return this.shipJet;
+    }
+
+    public boolean renderFirst() {
+        return this.type == 0;
     }
 }

@@ -30,12 +30,14 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.font.effects.*;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.geom.*;
+import org.newdawn.slick.openal.SoundStore;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import com.spacejunk.sprites.*;
 import com.spacejunk.particles.*;
 import com.spacejunk.util.*;
 import com.spacejunk.pause.*;
-import org.newdawn.slick.openal.SoundStore;
+import com.spacejunk.error.*;
 
 /**
  * Actual SpaceJunk game object, contains the main code that makes the game work.
@@ -47,7 +49,7 @@ public class SpaceJunk {
     private static DisplayMode DISPLAY_MODE;
     private int score, deaths, curLevel, nextRand, lastMouseX, lastMouseY, pauseScreen;
     private long lastAsteroid, time, startTime;
-    private boolean mouseClicked;
+    private boolean mouseClicked, renderCollision, prevMusicPlaying;
     private String pauseHover;
     private UnicodeFont batmfa20, batmfa60;
     private SoundManager soundManager;
@@ -57,17 +59,27 @@ public class SpaceJunk {
     private List<Pause> pauseMenu;
     private List<Sprite> sprites;
     private List<Sprite2Asteroid> asteroids;
-    private List<Sprite4Powerup> powerups;
+    private List<PowerupSprite> powerups;
     private List<Particle> particles;
     private TickCounter tc;
 
 
     /**
      * Creates a new SpaceJunk game instance.
-     * @param width display width
-     * @param height display height
+     * @param difficulty
+     * @param mode
+     * @param fullscreen
+     * @param vSync
+     * @param musicVolume
+     * @param soundVolume
+     * @param renderColl
+     * @throws LWJGLException
+     * @throws SlickException
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws JFOSException
      */
-    public SpaceJunk(int difficulty, DisplayMode mode, boolean fullscreen, boolean vSync, float musicVolume, float soundVolume) throws LWJGLException, SlickException, FileNotFoundException, IOException {
+    public SpaceJunk(int difficulty, DisplayMode mode, boolean fullscreen, boolean vSync, float musicVolume, float soundVolume, boolean renderColl) throws LWJGLException, SlickException, FileNotFoundException, IOException, JFOSException {
         // Setup sound manager
         soundManager = new SoundManager();
         soundManager.setMusicVolume(musicVolume);
@@ -83,8 +95,9 @@ public class SpaceJunk {
         // Default stuff
         score = 0; deaths = 0; curLevel = 1; nextRand = 0; pauseScreen = 0;
         lastAsteroid = 0; time = 0; startTime = 0; pauseHover = "";
+        mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false;
         sprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
-        particles = new ArrayList<Particle>();
+        powerups = new ArrayList<PowerupSprite>(); particles = new ArrayList<Particle>();
         atex = new Texture[5];
         tc = new TickCounter(mode.getFrequency());
 
@@ -181,7 +194,8 @@ public class SpaceJunk {
                 }
             }
             Display.update();
-            Display.sync(Display.getDisplayMode().getFrequency() <= 0 ? 60 : Display.getDisplayMode().getFrequency());
+            Display.sync(60);
+            //Display.sync(Display.getDisplayMode().getFrequency() <= 0 ? 60 : Display.getDisplayMode().getFrequency());
         }
     }
 
@@ -245,7 +259,7 @@ public class SpaceJunk {
                     pauseScreen = 0;
                 }
             }
-            // Old F-key volume code, replaced by much nicer options GUI.
+            // Old F-key options code, replaced by much nicer options GUI.
             /*if(Keyboard.getEventKey() == Keyboard.KEY_F5) soundManager.setSoundVolume(soundManager.getSoundVolume() - 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F6) soundManager.setSoundVolume(soundManager.getSoundVolume() + 0.1F);
             if(Keyboard.getEventKey() == Keyboard.KEY_F7) soundManager.setMusicVolume(soundManager.getMusicVolume() - 0.1F);
@@ -265,16 +279,24 @@ public class SpaceJunk {
         glLoadIdentity();
 
         drawBg();
-        Sprite sprite = null;
-        for(int i = 0; i < sprites.size(); i++) {
-            sprite = sprites.get(i);
-            sprite.render();
-        }
-
         Particle particle = null;
         for(int i = 0; i < particles.size(); i++) {
             particle = particles.get(i);
-            particle.render();
+            if(particle.isVisible() && particle.renderFirst()) particle.render();
+        }
+
+        Sprite sprite = null;
+        for(int i = 0; i < sprites.size(); i++) {
+            sprite = sprites.get(i);
+            if(sprite.isVisible()) {
+                sprite.render();
+                if(renderCollision) ShapeRenderer.draw(sprite.getBounds());
+            }
+        }
+
+        for(int i = 0; i < particles.size(); i++) {
+            particle = particles.get(i);
+            if(particle.isVisible() && !particle.renderFirst()) particle.render();
         }
 
         try {
@@ -293,7 +315,8 @@ public class SpaceJunk {
     }
 
     private void update() {
-        if(!SoundStore.get().isMusicPlaying()) soundManager.playRandomMusic();
+        if(!SoundStore.get().isMusicPlaying() && !prevMusicPlaying) soundManager.playRandomMusic();
+        prevMusicPlaying = SoundStore.get().isMusicPlaying();
         if(Mouse.isGrabbed()) {
             tc.incTicks();
             time = (tc.getTickMillis() - startTime) / 1000;
@@ -311,19 +334,20 @@ public class SpaceJunk {
                 if(!(sprite instanceof Sprite0Ship)) {
                     if(!sprite.isVisible()) sprites.remove(sprite);
                     if(!sprite.isVisible() && sprite instanceof Sprite2Asteroid) asteroids.remove((Sprite2Asteroid)sprite);
+                    if(!sprite.isVisible() && sprite instanceof PowerupSprite) powerups.remove((PowerupSprite)sprite);
                 }
             }
 
             Particle particle = null;
+            boolean skip = false;
             for(int i = 0; i < particles.size(); i++) {
                 particle = particles.get(i);
                 particle.update();
             }
             for(int i = 0; i < particles.size(); i++) {
-                particle = particles.get(i);
-                if(!(particle instanceof Particle1Jet)) {
-                    if(!particle.isVisible()) particles.remove(particle);
-                }
+                skip = false; particle = particles.get(i);
+                if(particle instanceof Particle1Jet) if(((Particle1Jet)particle).isShipJet()) skip = true;
+                if(!particle.isVisible() && !skip) particles.remove(particle);
             }
         }
         
@@ -426,7 +450,7 @@ public class SpaceJunk {
         glEnable(GL_TEXTURE_2D);
         
         // mouse processing
-        Bounds mouse = new Bounds(Mouse.getX(), DISPLAY_HEIGHT - Mouse.getY(), 1, 1);
+        Shape mouse = new Rectangle(Mouse.getX(), DISPLAY_HEIGHT - Mouse.getY(), 1, 1);
 
         // draw text
         batmfa60.drawString((DISPLAY_WIDTH - batmfa60.getWidth("PAUSED")) / 2, 25, "PAUSED", Color.red);
@@ -477,7 +501,8 @@ public class SpaceJunk {
 
     private void generateAsteroid() {
         if((tc.getTickMillis() - lastAsteroid) >= nextRand) {
-            Sprite2Asteroid newSprite = new Sprite2Asteroid(sprites, particles, soundManager, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this, atex[random.nextInt(5)]);
+            int texnum = random.nextInt(5);
+            Sprite2Asteroid newSprite = new Sprite2Asteroid(sprites, particles, soundManager, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this, atex[texnum], texnum);
             sprites.add(newSprite); asteroids.add(newSprite);
             lastAsteroid = tc.getTickMillis();
             nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
@@ -486,16 +511,17 @@ public class SpaceJunk {
 
     private void generatePowerup() {
         if(random.nextInt(1000) == random.nextInt(1000)) {
-            //Sprite newSprite = new Sprite4Powerup();
-            //sprites.add(newSprite);
+            PowerupSprite newSprite = new Sprite4Powerup(this, sprites, particles, soundManager, DISPLAY_WIDTH + 32, random.nextInt(DISPLAY_HEIGHT), Powerup.ALL_POWERUPS[random.nextInt(Powerup.TOTAL_POWERUPS)]);
+            sprites.add(newSprite);
+            powerups.add(newSprite);
         }
     }
 
     private void processCollision(Sprite sprite) {
-        if(sprite instanceof Sprite2Asteroid || sprite instanceof Sprite4Powerup) return;
+        if(sprite instanceof Sprite2Asteroid || sprite instanceof PowerupSprite) return;
         for(int i = 0; i < asteroids.size(); i++) {
             Sprite2Asteroid asteroid = asteroids.get(i);
-            Bounds b1 = sprite.getBounds(); Bounds b2 = asteroid.getBounds();
+            Shape b1 = sprite.getBounds(); Shape b2 = asteroid.getBounds();
             if(sprite instanceof Sprite0Ship) {
                 if(!((Sprite0Ship)sprite).isHit() && !((Sprite0Ship)sprite).isInvincible() && b1.intersects(b2)) {
                     deaths++;
@@ -506,23 +532,31 @@ public class SpaceJunk {
             else if(sprite instanceof Sprite1Gunfire) {
                 if(sprite.isVisible()) {
                     if(b1.intersects(b2)) {
-                        asteroid.hit(1);
+                        asteroid.hit(((Sprite1Gunfire)sprite).isBig() ? 5 : 1);
                         sprite.setVisible(false);
                     }
                 }
             }
-        }
-        /*for(int i = 0; i < powerups.size(); i++) {
-            Sprite4Powerup powerup = powerups.get(i);
-            Bounds b1 = sprite.getBounds(); Bounds b2 = powerup.getBounds();
-            if(sprite instanceof Sprite0Ship) {
-                if(!((Sprite0Ship)sprite).isHit() && !((Sprite0Ship)sprite).isInvincible() && b1.intersects(b2)) {
-                    deaths++;
-                    this.decScore(DIFFICULTY * 2);
-                    ((Sprite0Ship)sprite).hit();
+            else if(sprite instanceof WeaponSprite) {
+                if(sprite.isVisible()) {
+                    if(b1.intersects(b2)) {
+                        asteroid.hit(((WeaponSprite)sprite).getDamage());
+                        ((WeaponSprite)sprite).impact();
+                    }
                 }
             }
-        }*/
+        }
+        for(int i = 0; i < powerups.size() && sprite instanceof Sprite0Ship; i++) {
+            PowerupSprite powerup = powerups.get(i);
+            Shape b1 = sprite.getBounds(); Shape b2 = powerup.getBounds();
+            if(sprite instanceof Sprite0Ship) {
+                if(!((Sprite0Ship)sprite).isHit() && !((Sprite0Ship)sprite).isRespawning() && b1.intersects(b2)) {
+                    ((Sprite0Ship)sprite).addPowerup(powerup.getPowerupType());
+                    powerup.setVisible(false);
+                    soundManager.playSoundEffect("ship.powerup", false);
+                }
+            }
+        }
     }
 
     public int getScore() {
@@ -588,11 +622,11 @@ public class SpaceJunk {
         }
     }
 
-    public void clearAsteroids() {
-        Sprite sprite;
+    public void clearScreen() {
+        Sprite sprite; PowerupSprite powerup;
         for(int i = 0; i < sprites.size(); i++) {
             sprite = sprites.get(i);
-            if(sprite instanceof Sprite2Asteroid) sprite.setVisible(false);
+            if(sprite instanceof Sprite2Asteroid || sprite instanceof PowerupSprite) sprite.setVisible(false);
         }
     }
 }

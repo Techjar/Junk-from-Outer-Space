@@ -11,6 +11,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.List;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.geom.*;
 import com.spacejunk.particles.*;
 import com.spacejunk.SoundManager;
 import com.spacejunk.SpaceJunk;
@@ -25,28 +26,30 @@ public class Sprite1Gunfire implements Sprite {
     private List<Particle> particles;
     private int id, x, y;
     private long lastfire;
-    private boolean visible;
+    private boolean visible, big;
     private Texture tex;
     private SoundManager sm;
-    private Bounds bounds;
+    private Shape bounds;
     private SpaceJunk sj;
     private TickCounter tc;
+    public static final long POWERUP_LIFE = 20000;
+    public static final String KEY_NAME = Powerup.BIGSHOT;
 
 
-    public Sprite1Gunfire(SpaceJunk sj, List sprites, List particles, SoundManager sm, int x, int y, Texture tex) {
+    public Sprite1Gunfire(SpaceJunk sj, List sprites, List particles, SoundManager sm, int x, int y, Texture tex, boolean big) {
         this.sj = sj;
         this.tc = sj.getTickCounter();
-        this.sprites = sprites; this.particles = particles;
-        this.id = 1; this.x = x; this.y = y; this.lastfire = 0; this.visible = true;
+        this.sprites = sprites; this.particles = particles; this.big = big;
+        this.id = 1; this.x = x - (this.big ? 8 : 0); this.y = y - (this.big ? 8 : 0); this.lastfire = 0; this.visible = true;
         this.tex = tex;
         this.sm = sm;
-        this.bounds = new Bounds(this.x - 16, this.y, 16, 16);
+        this.bounds = this.big ? new Circle(this.x, this.y, 16) : new Rectangle(this.x, this.y, 16, 16);
     }
 
     public void update() {
         this.x += 10;
         if((this.x - 16) > Display.getDisplayMode().getWidth()) this.setVisible(false);
-        bounds.setX(this.x - 16); bounds.setY(this.y);
+        bounds.setCenterX(this.x + (this.big ? 16 : 8)); bounds.setCenterY(this.y + (this.big ? 16 : 8));
     }
 
     public void render() {
@@ -59,15 +62,14 @@ public class Sprite1Gunfire implements Sprite {
 
             // translate to the right location and prepare to draw
             glTranslatef(x, y, 0);
-            glRotatef(90, 0, 0, 1);
             glColor3f(1, 1, 1);
 
             // draw a quad textured to match the sprite
             glBegin(GL_QUADS);
                 glTexCoord2f(0, 0); glVertex2f(0, 0);
-                glTexCoord2f(0, tex.getHeight()); glVertex2f(0, tex.getImageHeight());
-                glTexCoord2f(tex.getWidth(), tex.getHeight()); glVertex2f(tex.getImageWidth(), tex.getImageHeight());
-                glTexCoord2f(tex.getWidth(), 0); glVertex2f(tex.getImageWidth(), 0);
+                glTexCoord2f(0, tex.getHeight()); glVertex2f(0, tex.getImageHeight() * (this.big ? 2 : 1));
+                glTexCoord2f(tex.getWidth(), tex.getHeight()); glVertex2f(tex.getImageWidth() * (this.big ? 2 : 1), tex.getImageHeight() * (this.big ? 2 : 1));
+                glTexCoord2f(tex.getWidth(), 0); glVertex2f(tex.getImageWidth() * (this.big ? 2 : 1), 0);
             glEnd();
 
             // restore the model view matrix to prevent contamination
@@ -103,7 +105,11 @@ public class Sprite1Gunfire implements Sprite {
         this.y = y;
     }
 
-    public Bounds getBounds() {
+    public Shape getBounds() {
         return this.bounds;
+    }
+
+    public boolean isBig() {
+        return this.big;
     }
 }

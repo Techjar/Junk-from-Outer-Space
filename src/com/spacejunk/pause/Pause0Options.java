@@ -17,9 +17,10 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.Color;
-import com.spacejunk.util.Bounds;
+import org.newdawn.slick.geom.*;
 import com.spacejunk.SoundManager;
 import com.spacejunk.SpaceJunk;
+import com.spacejunk.util.ConfigManager;
 import com.spacejunk.util.ResolutionSorter;
 import com.spacejunk.util.MathHelper;
 
@@ -34,7 +35,7 @@ public class Pause0Options implements Pause {
     private UnicodeFont font;
     private Color color;
     private SoundManager sm;
-    private Bounds bounds;
+    private Shape bounds;
     private DisplayMode displayMode;
     private DisplayMode[] displayModes;
     private List<DisplayMode> modeList;
@@ -49,7 +50,7 @@ public class Pause0Options implements Pause {
         this.sm = sm;
         this.color = color;
         this.font = font;
-        this.bounds = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
+        this.bounds = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
         this.displayMode = Display.getDisplayMode();
         this.displayModes = Display.getAvailableDisplayModes();
         this.modeList = new ArrayList<DisplayMode>();
@@ -75,12 +76,12 @@ public class Pause0Options implements Pause {
     }
 
     public void render() {
-        this.bounds = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
+        this.bounds = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, font.getWidth(this.text), font.getHeight(this.text));
         font.drawString((Display.getDisplayMode().getWidth() - font.getWidth(this.text)) / 2, this.y, this.text, this.color);
     }
 
     public void renderScreen() {
-        Bounds mouse = new Bounds(Mouse.getX(), Display.getDisplayMode().getHeight() - Mouse.getY(), 1, 1);
+        Shape mouse = new Rectangle(Mouse.getX(), Display.getDisplayMode().getHeight() - Mouse.getY(), 1, 1);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("MUSIC VOLUME")) / 2) - 100, 100, "MUSIC VOLUME", Color.red);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("SOUND VOLUME")) / 2) - 105, 130, "SOUND VOLUME", Color.red);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("DIFFICULTY")) / 2) - 76, 160, "DIFFICULTY", Color.red);
@@ -89,12 +90,12 @@ public class Pause0Options implements Pause {
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 108, 200, 2, Color.darkGray);
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 138, 200, 2, Color.darkGray);
 
-        Bounds mus = new Bounds(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18);
-        Bounds snd = new Bounds(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18);
-        Bounds diff = new Bounds(Display.getDisplayMode().getWidth() / 2, 160, font.getWidth(diffModes[getDifficultyRev(this.difficulty)]), font.getHeight(diffModes[getDifficultyRev(this.difficulty)]));
-        Bounds disp = new Bounds(Display.getDisplayMode().getWidth() / 2, 190, font.getWidth(modeNames[this.displayInt]), font.getHeight(modeNames[this.displayInt]));
-        Bounds fs = new Bounds(Display.getDisplayMode().getWidth() / 2, 220, font.getWidth(Display.isFullscreen() ? "ON" : "OFF"), font.getHeight(Display.isFullscreen() ? "ON" : "OFF"));
-        Bounds back = new Bounds((Display.getDisplayMode().getWidth() - font.getWidth("BACK")) / 2, 270, font.getWidth("BACK"), font.getHeight("BACK"));
+        Shape mus = new Rectangle(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18);
+        Shape snd = new Rectangle(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18);
+        Shape diff = new Rectangle(Display.getDisplayMode().getWidth() / 2, 160, font.getWidth(diffModes[getDifficultyRev(this.difficulty)]), font.getHeight(diffModes[getDifficultyRev(this.difficulty)]));
+        Shape disp = new Rectangle(Display.getDisplayMode().getWidth() / 2, 190, font.getWidth(modeNames[this.displayInt]), font.getHeight(modeNames[this.displayInt]));
+        Shape fs = new Rectangle(Display.getDisplayMode().getWidth() / 2, 220, font.getWidth(Display.isFullscreen() ? "ON" : "OFF"), font.getHeight(Display.isFullscreen() ? "ON" : "OFF"));
+        Shape back = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth("BACK")) / 2, 270, font.getWidth("BACK"), font.getHeight("BACK"));
         drawSlider(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18, mouse.intersects(mus) || this.pressed == 1 ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         drawSlider(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18, mouse.intersects(snd) || this.pressed == 2 ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         font.drawString(Display.getDisplayMode().getWidth() / 2, 160, diffModes[getDifficultyRev(this.difficulty)], mouse.intersects(diff) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
@@ -125,6 +126,7 @@ public class Pause0Options implements Pause {
                 this.pressed = 3;
                 this.difficulty = this.getDifficulty(MathHelper.loop(this.getDifficultyRev(this.difficulty) + 1, 0, 4));
                 sj.setDifficulty(this.difficulty);
+                ConfigManager.setProperty("difficulty", this.getDifficultyRev(this.difficulty));
             }
             if(mouse.intersects(disp) && this.pressed != 4) {
                 sm.playSoundEffect("ui.button.click", false);
@@ -133,6 +135,8 @@ public class Pause0Options implements Pause {
                 this.displayMode = modeList.get(this.displayInt);
                 try {
                     sj.changeDisplayMode(this.displayMode, Display.isFullscreen());
+                    ConfigManager.setProperty("video-width", this.displayMode.getWidth());
+                    ConfigManager.setProperty("video-height", this.displayMode.getHeight());
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -142,6 +146,7 @@ public class Pause0Options implements Pause {
                 sm.playSoundEffect("ui.button.click", false);
                 this.pressed = 5;
                 try {
+                    ConfigManager.setProperty("fullscreen", !Display.isFullscreen());
                     sj.changeDisplayMode(this.displayMode, !Display.isFullscreen());
                 }
                 catch(Exception e) {
@@ -159,6 +164,7 @@ public class Pause0Options implements Pause {
                 this.pressed = 3;
                 this.difficulty = this.getDifficulty(MathHelper.loop(this.getDifficultyRev(this.difficulty) - 1, 0, 4));
                 sj.setDifficulty(this.difficulty);
+                ConfigManager.setProperty("difficulty", this.getDifficultyRev(this.difficulty));
             }
             if(mouse.intersects(disp) && this.pressed != 4) {
                 sm.playSoundEffect("ui.button.click", false);
@@ -167,6 +173,8 @@ public class Pause0Options implements Pause {
                 this.displayMode = modeList.get(this.displayInt);
                 try {
                     sj.changeDisplayMode(this.displayMode, Display.isFullscreen());
+                    ConfigManager.setProperty("video-width", this.displayMode.getWidth());
+                    ConfigManager.setProperty("video-height", this.displayMode.getHeight());
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -174,12 +182,14 @@ public class Pause0Options implements Pause {
             }
         }
         else {
+            if(this.pressed == 1) ConfigManager.setProperty("music-volume", sm.getMusicVolume());
+            if(this.pressed == 2) ConfigManager.setProperty("sound-volume", sm.getSoundVolume());
             this.pressed = 0;
         }
         if(!Mouse.isButtonDown(0) && !Mouse.isButtonDown(1) && this.mouseClicked) this.mouseClicked = false;
     }
 
-    public Bounds getBounds() {
+    public Shape getBounds() {
         return this.bounds;
     }
 

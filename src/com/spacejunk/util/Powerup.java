@@ -15,5 +15,6 @@ public final class Powerup {
     public static final String FASTSHOT = "FASTSHOT";
     public static final String BIGSHOT = "BIGSHOT";
     public static final String ROCKET = "ROCKET";
+    public static final String[] ALL_POWERUPS = {FASTSHOT, BIGSHOT, ROCKET};
     public static final int TOTAL_POWERUPS = 3;
 }

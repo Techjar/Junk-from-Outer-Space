@@ -6,7 +6,7 @@
 
 package com.spacejunk.sprites;
 
-import com.spacejunk.util.Bounds;
+import org.newdawn.slick.geom.*;
 
 /**
  * 
@@ -22,5 +22,5 @@ public interface Sprite {
     int getY();
     void setX(int x);
     void setY(int y);
-    Bounds getBounds();
+    Shape getBounds();
 }
