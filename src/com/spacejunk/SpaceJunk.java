@@ -345,61 +345,11 @@ public class SpaceJunk {
             }
             for(int i = 0; i < particles.size(); i++) {
                 skip = false; particle = particles.get(i);
-                if(particle instanceof Particle1Jet) if(((Particle1Jet)particle).isShipJet()) skip = true;
+                if(particle instanceof Particle1Jet) skip = ((Particle1Jet)particle).isShipJet();
                 if(!particle.isVisible() && !skip) particles.remove(particle);
             }
         }
-        
-        if(time >= 2960) curLevel = 50;
-        else if(time >= 2900) curLevel = 49;
-        else if(time >= 2840) curLevel = 48;
-        else if(time >= 2780) curLevel = 47;
-        else if(time >= 2720) curLevel = 46;
-        else if(time >= 2660) curLevel = 45;
-        else if(time >= 2600) curLevel = 44;
-        else if(time >= 2540) curLevel = 43;
-        else if(time >= 2480) curLevel = 42;
-        else if(time >= 2420) curLevel = 41;
-        else if(time >= 2360) curLevel = 40;
-        else if(time >= 2300) curLevel = 39;
-        else if(time >= 2240) curLevel = 38;
-        else if(time >= 2160) curLevel = 37;
-        else if(time >= 2100) curLevel = 36;
-        else if(time >= 2040) curLevel = 35;
-        else if(time >= 1980) curLevel = 34;
-        else if(time >= 1920) curLevel = 33;
-        else if(time >= 1860) curLevel = 32;
-        else if(time >= 1800) curLevel = 31;
-        else if(time >= 1740) curLevel = 30;
-        else if(time >= 1680) curLevel = 29;
-        else if(time >= 1620) curLevel = 28;
-        else if(time >= 1560) curLevel = 27;
-        else if(time >= 1500) curLevel = 26;
-        else if(time >= 1440) curLevel = 25;
-        else if(time >= 1380) curLevel = 24;
-        else if(time >= 1320) curLevel = 23;
-        else if(time >= 1260) curLevel = 22;
-        else if(time >= 1200) curLevel = 21;
-        else if(time >= 1140) curLevel = 20;
-        else if(time >= 1020) curLevel = 19;
-        else if(time >= 960) curLevel = 18;
-        else if(time >= 900) curLevel = 17;
-        else if(time >= 840) curLevel = 16;
-        else if(time >= 780) curLevel = 15;
-        else if(time >= 720) curLevel = 14;
-        else if(time >= 660) curLevel = 13;
-        else if(time >= 600) curLevel = 12;
-        else if(time >= 540) curLevel = 11;
-        else if(time >= 480) curLevel = 10;
-        else if(time >= 420) curLevel = 9;
-        else if(time >= 360) curLevel = 8;
-        else if(time >= 300) curLevel = 7;
-        else if(time >= 240) curLevel = 6;
-        else if(time >= 180) curLevel = 5;
-        else if(time >= 120) curLevel = 4;
-        else if(time >= 60) curLevel = 3;
-        else if(time >= 30) curLevel = 2;
-
+        curLevel = time < 60 ? ((int)time / 30) + 1 : ((int)time / 60) + 2;
         soundManager.poll(0);
     }
 
@@ -517,7 +467,7 @@ public class SpaceJunk {
             }
             else firstPowerup = false;
             lastPowerup = tc.getTickMillis();
-            nextPowerupRand = random.nextInt(MathHelper.clamp(2000000 / DIFFICULTY, 1, 2000000)) / curLevel;
+            nextPowerupRand = random.nextInt(MathHelper.clamp(500000 / DIFFICULTY, 1, 500000));
         }
     }
 
