@@ -194,8 +194,7 @@ public class SpaceJunk {
                 }
             }
             Display.update();
-            Display.sync(60);
-            //Display.sync(Display.getDisplayMode().getFrequency() <= 0 ? 60 : Display.getDisplayMode().getFrequency());
+            Display.sync(Display.getDisplayMode().getFrequency() <= 0 ? 60 : Display.getDisplayMode().getFrequency());
         }
     }
 
@@ -510,7 +509,7 @@ public class SpaceJunk {
     }
 
     private void generatePowerup() {
-        if(random.nextInt(1000) == random.nextInt(1000)) {
+        if(random.nextInt(2000) == random.nextInt(2000)) {
             PowerupSprite newSprite = new Sprite4Powerup(this, sprites, particles, soundManager, DISPLAY_WIDTH + 32, random.nextInt(DISPLAY_HEIGHT), Powerup.ALL_POWERUPS[random.nextInt(Powerup.TOTAL_POWERUPS)]);
             sprites.add(newSprite);
             powerups.add(newSprite);

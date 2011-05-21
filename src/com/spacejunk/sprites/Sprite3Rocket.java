@@ -34,7 +34,7 @@ public class Sprite3Rocket implements PowerupWeaponSprite {
     private Particle1Jet jet;
     private SoundManager sm;
     private Shape bounds;
-    public static final long SHOT_DELAY = 1000, POWERUP_LIFE = 10000;
+    public static final long SHOT_DELAY = 1000, POWERUP_LIFE = 10;
     public static final String KEY_NAME = Powerup.ROCKET;
 
 

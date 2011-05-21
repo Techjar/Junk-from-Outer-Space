@@ -36,6 +36,7 @@ public class Sprite0Ship implements Sprite {
     private List<Particle> particles;
     private int id, x, y;
     private long lastFire, hitTime, invTime, invForTime, invFrameTime;
+    private long rocketShots;
     private boolean visible, hit, invincible, invState, respawning;
     private List<String> powerups;
     private Map<String, Long> powerupTime, powerupLife;
@@ -56,6 +57,7 @@ public class Sprite0Ship implements Sprite {
             this.sprites = sprites; this.particles = particles;
             this.id = 0; this.x = x; this.y = y;
             this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
+            this.rocketShots = 0;
             this.visible = true; this.hit = false; this.invincible = false; this.invState = true; this.respawning = false;
             this.powerups = new ArrayList<String>();
             this.powerupTime = new HashMap<String, Long>(); this.powerupLife = new HashMap<String, Long>();
@@ -124,6 +126,7 @@ public class Sprite0Ship implements Sprite {
                     if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.contains(Powerup.ROCKET)) {
                         powerupTime.put(Sprite3Rocket.KEY_NAME, tc.getTickMillis());
                         sprites.add(new Sprite3Rocket(this.sj, sprites, particles, sm, this.x - 7, this.y + 8, this.rocketTex));
+                        this.rocketShots++;
                     }
                 }
             }
@@ -167,21 +170,23 @@ public class Sprite0Ship implements Sprite {
         }
 
         glPushMatrix();
-        DisplayMode dm = Display.getDisplayMode(); long ptime = 0, pstime = 0;
-        if(powerups.contains(Powerup.ROCKET) && powerupLife.containsKey(Powerup.ROCKET)) {
-            ptime = tc.getTickMillis() - powerupLife.get(Powerup.ROCKET);
+        DisplayMode dm = Display.getDisplayMode(); long ptime = 0, pstime = 0, plife = 0;
+        if(powerups.contains(Powerup.ROCKET) || powerupLife.containsKey(Powerup.ROCKET)) {
+            plife = powerupLife.containsKey(Powerup.ROCKET) ? powerupLife.get(Powerup.ROCKET) : 0;
+            ptime = this.rocketShots - plife;
             if(ptime >= Sprite3Rocket.POWERUP_LIFE) {
                 this.removePowerup(Powerup.ROCKET);
             }
             else {
-                pstime = ((Sprite3Rocket.POWERUP_LIFE - ptime) / 1000) + 1;
+                pstime = Sprite3Rocket.POWERUP_LIFE - ptime;
                 drawPowerupIcon(this.powerupTex[2], dm.getWidth() - 18, 2);
                 glPushMatrix(); font.drawString((dm.getWidth() - (font.getWidth(Long.toString(pstime)) / 2)) - 10, 18, Long.toString(pstime), Color.white); glPopMatrix();
             }
         }
 
-        if(powerups.contains(Powerup.FASTSHOT) && powerupLife.containsKey(Powerup.FASTSHOT)) {
-            ptime = tc.getTickMillis() - powerupLife.get(Powerup.FASTSHOT);
+        if(powerups.contains(Powerup.FASTSHOT) || powerupLife.containsKey(Powerup.FASTSHOT)) {
+            plife = powerupLife.containsKey(Powerup.FASTSHOT) ? powerupLife.get(Powerup.FASTSHOT) : 0;
+            ptime = tc.getTickMillis() - plife;
             if(ptime >= 30000) {
                 this.removePowerup(Powerup.FASTSHOT);
             }
@@ -192,8 +197,9 @@ public class Sprite0Ship implements Sprite {
             }
         }
 
-        if(powerups.contains(Powerup.BIGSHOT) && powerupLife.containsKey(Powerup.BIGSHOT)) {
-            ptime = tc.getTickMillis() - powerupLife.get(Powerup.BIGSHOT);
+        if(powerups.contains(Powerup.BIGSHOT) || powerupLife.containsKey(Powerup.BIGSHOT)) {
+            plife = powerupLife.containsKey(Powerup.BIGSHOT) ? powerupLife.get(Powerup.BIGSHOT) : 0;
+            ptime = tc.getTickMillis() - plife;
             if(ptime >= Sprite1Gunfire.POWERUP_LIFE) {
                 this.removePowerup(Powerup.BIGSHOT);
             }
@@ -238,6 +244,7 @@ public class Sprite0Ship implements Sprite {
         try {
             particles.add(new Particle0Explosion(sj, this.x - 16, this.y + 16, 1500, 0));
             powerups.clear();
+            powerupLife.clear();
             sm.playSoundEffect("ambient.explode.0", false);
         }
         catch(Exception e) {
@@ -272,8 +279,9 @@ public class Sprite0Ship implements Sprite {
         if(powerup.equals(Powerup.ROCKET)) {
             if(powerups.contains(Powerup.ROCKET)) powerups.remove(Powerup.ROCKET);
         }
+        if(powerup.equals(Powerup.ROCKET)) this.rocketShots = 0;
         powerups.add(powerup);
-        powerupLife.put(powerup, tc.getTickMillis());
+        powerupLife.put(powerup, powerup.equals(Powerup.ROCKET) ? 0 : tc.getTickMillis());
     }
 
     public void removePowerup(String powerup) {
