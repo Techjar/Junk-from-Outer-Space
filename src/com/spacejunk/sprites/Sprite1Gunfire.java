@@ -32,7 +32,7 @@ public class Sprite1Gunfire implements Sprite {
     private Shape bounds;
     private SpaceJunk sj;
     private TickCounter tc;
-    public static final long POWERUP_LIFE = 20000;
+    public static final long POWERUP_LIFE = 30000;
     public static final String KEY_NAME = Powerup.BIGSHOT;
 
 
@@ -43,7 +43,7 @@ public class Sprite1Gunfire implements Sprite {
         this.id = 1; this.x = x - (this.big ? 8 : 0); this.y = y - (this.big ? 8 : 0); this.lastfire = 0; this.visible = true;
         this.tex = tex;
         this.sm = sm;
-        this.bounds = this.big ? new Circle(this.x, this.y, 16) : new Rectangle(this.x, this.y, 16, 16);
+        this.bounds = this.big ? new Rectangle(this.x, this.y, 32, 32) : new Rectangle(this.x, this.y, 16, 16);
     }
 
     public void update() {

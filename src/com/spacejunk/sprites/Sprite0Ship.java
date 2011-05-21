@@ -114,19 +114,19 @@ public class Sprite0Ship implements Sprite {
             this.y = (Display.getDisplayMode().getHeight() - Mouse.getY()) - (tex.getImageHeight() / 2);
             jet.setX(this.x - 26); jet.setY(this.y + 16);
             if(!this.respawning) {
-                if(Mouse.isButtonDown(0)) {
+                if(Mouse.isButtonDown(1) && !powerups.isEmpty()) {
+                    if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.contains(Powerup.ROCKET)) {
+                        powerupTime.put(Sprite3Rocket.KEY_NAME, tc.getTickMillis());
+                        sprites.add(new Sprite3Rocket(this.sj, sprites, particles, sm, this.x - 7, this.y + 8, this.rocketTex));
+                        this.rocketShots++;
+                    }
+                }
+                else if(Mouse.isButtonDown(0)) {
                     if((powerups.contains(Powerup.FASTSHOT) && tc.getTickMillis() - lastFire >= 40) || tc.getTickMillis() - lastFire >= 200) {
                         lastFire = tc.getTickMillis();
                         sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x - 16, this.y - 3, this.guntex, powerups.contains(Powerup.BIGSHOT)));
                         sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x - 16, this.y + 19, this.guntex, powerups.contains(Powerup.BIGSHOT)));
                         sm.playSoundEffect("ship.gunfire", false);
-                    }
-                }
-                else if(Mouse.isButtonDown(1)) {
-                    if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.contains(Powerup.ROCKET)) {
-                        powerupTime.put(Sprite3Rocket.KEY_NAME, tc.getTickMillis());
-                        sprites.add(new Sprite3Rocket(this.sj, sprites, particles, sm, this.x - 7, this.y + 8, this.rocketTex));
-                        this.rocketShots++;
                     }
                 }
             }
@@ -187,11 +187,11 @@ public class Sprite0Ship implements Sprite {
         if(powerups.contains(Powerup.FASTSHOT) || powerupLife.containsKey(Powerup.FASTSHOT)) {
             plife = powerupLife.containsKey(Powerup.FASTSHOT) ? powerupLife.get(Powerup.FASTSHOT) : 0;
             ptime = tc.getTickMillis() - plife;
-            if(ptime >= 30000) {
+            if(ptime >= 20000) {
                 this.removePowerup(Powerup.FASTSHOT);
             }
             else {
-                pstime = ((30000 - ptime) / 1000) + 1;
+                pstime = ((20000 - ptime) / 1000) + 1;
                 drawPowerupIcon(this.powerupTex[0], dm.getWidth() - 36, 2);
                 glPushMatrix(); font.drawString((dm.getWidth() - (font.getWidth(Long.toString(pstime)) / 2)) - 28, 18, Long.toString(pstime), Color.white); glPopMatrix();
             }

@@ -47,9 +47,9 @@ public class SpaceJunk {
     private static int DISPLAY_WIDTH, DISPLAY_HEIGHT, DIFFICULTY;
     private static boolean FULLSCREEN;
     private static DisplayMode DISPLAY_MODE;
-    private int score, deaths, curLevel, nextRand, lastMouseX, lastMouseY, pauseScreen;
-    private long lastAsteroid, time, startTime;
-    private boolean mouseClicked, renderCollision, prevMusicPlaying;
+    private int score, deaths, curLevel, nextRand, nextPowerupRand, lastMouseX, lastMouseY, pauseScreen;
+    private long lastAsteroid, lastPowerup, time, startTime;
+    private boolean mouseClicked, renderCollision, prevMusicPlaying, firstPowerup;
     private String pauseHover;
     private UnicodeFont batmfa20, batmfa60;
     private SoundManager soundManager;
@@ -93,9 +93,9 @@ public class SpaceJunk {
         DISPLAY_MODE = mode;
 
         // Default stuff
-        score = 0; deaths = 0; curLevel = 1; nextRand = 0; pauseScreen = 0;
-        lastAsteroid = 0; time = 0; startTime = 0; pauseHover = "";
-        mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false;
+        score = 0; deaths = 0; curLevel = 1; nextRand = 0; nextPowerupRand = 0; pauseScreen = 0;
+        lastAsteroid = 0; lastPowerup = 0; time = 0; startTime = 0; pauseHover = "";
+        mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false; firstPowerup = true;
         sprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
         powerups = new ArrayList<PowerupSprite>(); particles = new ArrayList<Particle>();
         atex = new Texture[5];
@@ -400,7 +400,7 @@ public class SpaceJunk {
         else if(time >= 60) curLevel = 3;
         else if(time >= 30) curLevel = 2;
 
-        soundManager.poll();
+        soundManager.poll(0);
     }
 
     private void drawBg() {
@@ -499,7 +499,7 @@ public class SpaceJunk {
     }
 
     private void generateAsteroid() {
-        if((tc.getTickMillis() - lastAsteroid) >= nextRand) {
+        if(tc.getTickMillis() - lastAsteroid >= nextRand) {
             int texnum = random.nextInt(5);
             Sprite2Asteroid newSprite = new Sprite2Asteroid(sprites, particles, soundManager, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this, atex[texnum], texnum);
             sprites.add(newSprite); asteroids.add(newSprite);
@@ -509,10 +509,15 @@ public class SpaceJunk {
     }
 
     private void generatePowerup() {
-        if(random.nextInt(2000) == random.nextInt(2000)) {
-            PowerupSprite newSprite = new Sprite4Powerup(this, sprites, particles, soundManager, DISPLAY_WIDTH + 32, random.nextInt(DISPLAY_HEIGHT), Powerup.ALL_POWERUPS[random.nextInt(Powerup.TOTAL_POWERUPS)]);
-            sprites.add(newSprite);
-            powerups.add(newSprite);
+        if(tc.getTickMillis() - lastPowerup >= nextPowerupRand) {
+            if(!firstPowerup) {
+                PowerupSprite newSprite = new Sprite4Powerup(this, sprites, particles, soundManager, DISPLAY_WIDTH + 32, random.nextInt(DISPLAY_HEIGHT), Powerup.ALL_POWERUPS[random.nextInt(Powerup.TOTAL_POWERUPS)]);
+                sprites.add(newSprite);
+                powerups.add(newSprite);
+            }
+            else firstPowerup = false;
+            lastPowerup = tc.getTickMillis();
+            nextPowerupRand = random.nextInt(MathHelper.clamp(2000000 / DIFFICULTY, 1, 2000000)) / curLevel;
         }
     }
 
@@ -599,6 +604,7 @@ public class SpaceJunk {
     public void setDifficulty(int difficulty) {
         DIFFICULTY = difficulty;
         nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
+        nextPowerupRand = random.nextInt(MathHelper.clamp(2000000 / DIFFICULTY, 1, 2000000)) / curLevel;
     }
 
     public void changeDisplayMode(DisplayMode mode, boolean fullscreen) {

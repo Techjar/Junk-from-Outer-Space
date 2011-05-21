@@ -46,8 +46,8 @@ public class SoundManager {
         }
     }
 
-    public void poll() {
-        SoundStore.get().poll(0);
+    public void poll(int delta) {
+        SoundStore.get().poll(delta);
     }
 
     public void stopMusic() {
@@ -64,9 +64,19 @@ public class SoundManager {
         }
     }
 
+    public void playMusic(String track, boolean loop) {
+        try {
+            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
+            randMusic.playAsMusic(1, 1, loop);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void playRandomMusic() {
         try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + random.nextInt(14) + ".ogg").toURI().toURL());
+            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + random.nextInt(20) + ".ogg").toURI().toURL());
             randMusic.playAsMusic(1, 1, false);
         }
         catch(Exception e) {
