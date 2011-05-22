@@ -349,7 +349,12 @@ public class SpaceJunk {
         }
         prevMusicPlaying = SoundStore.get().isMusicPlaying();
         if(Mouse.isGrabbed() && !onTitle) {
-            if(!Display.isActive()) Mouse.setGrabbed(false);
+            if(!Display.isActive()) {
+                ConfigManager.setProperty("high-score", this.highScore);
+                lastMouseX = Mouse.getX();
+                lastMouseY = Mouse.getY();
+                Mouse.setGrabbed(false);
+            }
             tc.incTicks();
             time = (tc.getTickMillis() - startTime) / 1000;
             generateAsteroid();
