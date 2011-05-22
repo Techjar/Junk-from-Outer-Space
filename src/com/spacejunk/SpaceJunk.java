@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.net.URL;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -38,6 +39,7 @@ import com.spacejunk.particles.*;
 import com.spacejunk.util.*;
 import com.spacejunk.pause.*;
 import com.spacejunk.error.*;
+import com.spacejunk.title.*;
 
 /**
  * Actual SpaceJunk game object, contains the main code that makes the game work.
@@ -47,17 +49,19 @@ public class SpaceJunk {
     private static int DISPLAY_WIDTH, DISPLAY_HEIGHT, DIFFICULTY;
     private static boolean FULLSCREEN;
     private static DisplayMode DISPLAY_MODE;
-    private int score, deaths, curLevel, nextRand, nextPowerupRand, lastMouseX, lastMouseY, pauseScreen;
-    private long lastAsteroid, lastPowerup, time, startTime;
-    private boolean mouseClicked, renderCollision, prevMusicPlaying, firstPowerup;
-    private String pauseHover;
-    private UnicodeFont batmfa20, batmfa60;
+    private int score, deaths, curLevel, nextRand, nextPowerupRand, lastMouseX, lastMouseY, pauseScreen, titleScreen;
+    private long lastAsteroid, lastPowerup, time, startTime, lastFrame, highScore;
+    private float titleFade;
+    private boolean mouseClicked, renderCollision, prevMusicPlaying, firstPowerup, onTitle;
+    private String pauseHover, titleHover;
+    private UnicodeFont batmfa20, batmfa37, batmfa60;
     private SoundManager soundManager;
     private Random random = new Random();
     private Texture bg;
     private Texture[] atex;
     private List<Pause> pauseMenu;
-    private List<Sprite> sprites;
+    private List<Title> titleMenu;
+    private List<Sprite> sprites, titleSprites;
     private List<Sprite2Asteroid> asteroids;
     private List<PowerupSprite> powerups;
     private List<Particle> particles;
@@ -80,6 +84,9 @@ public class SpaceJunk {
      * @throws JFOSException
      */
     public SpaceJunk(int difficulty, DisplayMode mode, boolean fullscreen, boolean vSync, float musicVolume, float soundVolume, boolean renderColl) throws LWJGLException, SlickException, FileNotFoundException, IOException, JFOSException {
+        // MEGA IMPORT SHUTDOWN HOOK!!!!!
+        Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
+
         // Setup sound manager
         soundManager = new SoundManager();
         soundManager.setMusicVolume(musicVolume);
@@ -93,13 +100,13 @@ public class SpaceJunk {
         DISPLAY_MODE = mode;
 
         // Default stuff
-        score = 0; deaths = 0; curLevel = 1; nextRand = 0; nextPowerupRand = 0; pauseScreen = 0;
-        lastAsteroid = 0; lastPowerup = 0; time = 0; startTime = 0; pauseHover = "";
-        mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false; firstPowerup = true;
-        sprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
+        score = 0; deaths = 0; curLevel = 1; nextRand = 0; nextPowerupRand = 0; pauseScreen = 0; titleScreen = 0;
+        lastAsteroid = 0; lastPowerup = 0; time = 0; startTime = 0; lastFrame = 0; pauseHover = ""; titleHover = ""; titleFade = 0.0F;
+        onTitle = true; mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false; firstPowerup = true;
+        sprites = new ArrayList<Sprite>(); titleSprites = new ArrayList<Sprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
         powerups = new ArrayList<PowerupSprite>(); particles = new ArrayList<Particle>();
-        atex = new Texture[5];
-        tc = new TickCounter(mode.getFrequency());
+        atex = new Texture[5]; highScore = 0;
+        tc = new TickCounter(mode.getFrequency() <= 0 ? 60 : mode.getFrequency());
 
         // Display
         Display.setDisplayMode(mode);
@@ -126,6 +133,13 @@ public class SpaceJunk {
         //batmfa20.getEffects().add(new ShadowEffect(java.awt.Color.DARK_GRAY, 3, 3, 0.3F));
         batmfa20.loadGlyphs();
 
+        batmfa37 = new UnicodeFont("resources/fonts/batmfa_.ttf", 37, false, false);
+        batmfa37.addAsciiGlyphs();
+        batmfa37.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+        batmfa37.getEffects().add(new GradientEffect(java.awt.Color.LIGHT_GRAY, java.awt.Color.BLACK, 1));
+        batmfa37.getEffects().add(new OutlineEffect(1, java.awt.Color.GRAY));
+        batmfa37.loadGlyphs();
+
         batmfa60 = new UnicodeFont("resources/fonts/batmfa_.ttf", 60, false, false);
         batmfa60.addAsciiGlyphs();
         batmfa60.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
@@ -136,7 +150,7 @@ public class SpaceJunk {
         Keyboard.create();
 
         // Mouse
-        Mouse.setGrabbed(true);
+        Mouse.setGrabbed(false);
         Mouse.create();
 
         /*batmfa20 = new UnicodeFont("resources/fonts/batmfa_.ttf", 20, false, false);
@@ -147,8 +161,15 @@ public class SpaceJunk {
         // Setup pause menu
         pauseMenu = new ArrayList<Pause>();
         pauseMenu.add(new Pause2Resume(batmfa20, Color.white, soundManager, this));
+        pauseMenu.add(new Pause3Title(batmfa20, Color.white, soundManager, this));
         pauseMenu.add(new Pause0Options(batmfa20, Color.white, soundManager, this));
         pauseMenu.add(new Pause1Quit(batmfa20, Color.white, soundManager, this));
+
+        // Setup title menu
+        titleMenu = new ArrayList<Title>();
+        titleMenu.add(new Title2StartGame(batmfa20, Color.white, soundManager, this));
+        titleMenu.add(new Title0Options(batmfa20, Color.white, soundManager, this));
+        titleMenu.add(new Title1Quit(batmfa20, Color.white, soundManager, this));
     }
 
     /**
@@ -206,9 +227,10 @@ public class SpaceJunk {
             atex[2] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid2.png"), GL_LINEAR);
             atex[3] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid3.png"), GL_LINEAR);
             atex[4] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid4.png"), GL_LINEAR);
-            sprites.add(new Sprite0Ship(sprites, particles, 48, 0, soundManager, this));
-            soundManager.playRandomMusic();
+            soundManager.playMusic("title", true);
             startTime = tc.getTickMillis();
+            highScore = Long.parseLong(ConfigManager.getProperty("high-score").toString());
+            this.generateTitleAsteroids();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -218,7 +240,7 @@ public class SpaceJunk {
 
     private void initGL() {
         // 2D Initialization
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0, 0, 0, 0);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_LIGHTING);
         glEnable(GL_TEXTURE_2D);
@@ -244,15 +266,16 @@ public class SpaceJunk {
 
     private void processKeyboard() {
         while(Keyboard.next() && Keyboard.getEventKeyState()) {
-            if(Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+            if(Keyboard.getEventKey() == Keyboard.KEY_ESCAPE && !onTitle) {
                 if(Mouse.isGrabbed()) {
+                    ConfigManager.setProperty("high-score", this.highScore);
                     lastMouseX = Mouse.getX();
                     lastMouseY = Mouse.getY();
                 }
                 else {
                     Mouse.setCursorPosition(lastMouseX, lastMouseY);
                 }
-
+                
                 Mouse.setGrabbed(!Mouse.isGrabbed());
                 if(Mouse.isGrabbed()) {
                     pauseScreen = 0;
@@ -266,7 +289,7 @@ public class SpaceJunk {
             if(Keyboard.getEventKey() == Keyboard.KEY_F9) soundManager.playRandomMusic();
             if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();
             if(Keyboard.getEventKey() == Keyboard.KEY_F11) changeDisplayMode(FULLSCREEN ? DISPLAY_MODE : Display.getDesktopDisplayMode(), !FULLSCREEN);*/
-            if(Keyboard.getEventKey() == Keyboard.KEY_F1) soundManager.playRandomMusic();
+            if(Keyboard.getEventKey() == Keyboard.KEY_F1 && !onTitle) soundManager.playRandomMusic();
         }
     }
 
@@ -278,45 +301,55 @@ public class SpaceJunk {
         glLoadIdentity();
 
         drawBg();
-        Particle particle = null;
-        for(int i = 0; i < particles.size(); i++) {
-            particle = particles.get(i);
-            if(particle.isVisible() && particle.renderFirst()) particle.render();
-        }
-
-        Sprite sprite = null;
-        for(int i = 0; i < sprites.size(); i++) {
-            sprite = sprites.get(i);
-            if(sprite.isVisible()) {
-                sprite.render();
-                if(renderCollision) ShapeRenderer.draw(sprite.getBounds());
+        if(!onTitle) {
+            Particle particle = null;
+            for(int i = 0; i < particles.size(); i++) {
+                particle = particles.get(i);
+                if(particle.isVisible() && particle.renderFirst()) particle.render();
             }
-        }
 
-        for(int i = 0; i < particles.size(); i++) {
-            particle = particles.get(i);
-            if(particle.isVisible() && !particle.renderFirst()) particle.render();
-        }
+            Sprite sprite = null;
+            for(int i = 0; i < sprites.size(); i++) {
+                sprite = sprites.get(i);
+                if(sprite.isVisible()) {
+                    sprite.render();
+                    if(renderCollision) ShapeRenderer.draw(sprite.getBounds());
+                }
+            }
 
-        try {
-            glPushMatrix();
-            batmfa20.drawString(5, 1, "Time: " + time, Color.yellow);
-            batmfa20.drawString(5, 21, "Level: " + curLevel, Color.yellow);
-            batmfa20.drawString(5, 41, "Score: " + score, Color.yellow);
-            batmfa20.drawString(5, 61, "Deaths: " + deaths, Color.yellow);
-            glPopMatrix();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+            for(int i = 0; i < particles.size(); i++) {
+                particle = particles.get(i);
+                if(particle.isVisible() && !particle.renderFirst()) particle.render();
+            }
 
-        if(!Mouse.isGrabbed()) processPause();
+            try {
+                glPushMatrix();
+                batmfa20.drawString(5, 1, "Time: " + time, Color.yellow);
+                batmfa20.drawString(5, 21, "Level: " + curLevel, Color.yellow);
+                batmfa20.drawString(5, 41, "Score: " + score, Color.yellow);
+                batmfa20.drawString(5, 61, "Deaths: " + deaths, Color.yellow);
+                glPopMatrix();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            if(!Mouse.isGrabbed()) processPause();
+        }
+        else {
+            processTitle();
+        }
+        if(titleFade < 1) drawTitleFade();
     }
 
     private void update() {
-        if(!SoundStore.get().isMusicPlaying() && !prevMusicPlaying) soundManager.playRandomMusic();
+        if(!SoundStore.get().isMusicPlaying() && !prevMusicPlaying) {
+            if(onTitle) soundManager.playMusic("title", true);
+            else soundManager.playRandomMusic();
+        }
         prevMusicPlaying = SoundStore.get().isMusicPlaying();
-        if(Mouse.isGrabbed()) {
+        if(Mouse.isGrabbed() && !onTitle) {
+            if(!Display.isActive()) Mouse.setGrabbed(false);
             tc.incTicks();
             time = (tc.getTickMillis() - startTime) / 1000;
             generateAsteroid();
@@ -350,7 +383,8 @@ public class SpaceJunk {
             }
         }
         curLevel = time < 60 ? ((int)time / 30) + 1 : ((int)time / 60) + 2;
-        soundManager.poll(0);
+        soundManager.poll((int)(tc.getTickMillis() - lastFrame));
+        lastFrame = tc.getTickMillis();
     }
 
     private void drawBg() {
@@ -371,6 +405,32 @@ public class SpaceJunk {
 	    glTexCoord2f(bg.getWidth(), bg.getHeight()); glVertex2f(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 	    glTexCoord2f(bg.getWidth(), 0); glVertex2f(DISPLAY_WIDTH, 0);
 	glEnd();
+
+	// restore the model view matrix to prevent contamination
+	glPopMatrix();
+    }
+
+    private void drawTitleFade() {
+        // store the current model matrix
+	glPushMatrix();
+
+        // disable textures
+        glDisable(GL_TEXTURE_2D);
+
+	// translate to the right location and prepare to draw
+	glTranslatef(0, 0, 0);
+    	glColor4f(0, 0, 0, 1F - titleFade);
+
+	// draw a quad textured to match the sprite
+    	glBegin(GL_QUADS);
+            glTexCoord2f(0, 0); glVertex2f(0, 0);
+	    glTexCoord2f(0, 1); glVertex2f(0, DISPLAY_HEIGHT);
+	    glTexCoord2f(1, 1); glVertex2f(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+	    glTexCoord2f(1, 0); glVertex2f(DISPLAY_WIDTH, 0);
+	glEnd();
+
+        // enable textures
+        glEnable(GL_TEXTURE_2D);
 
 	// restore the model view matrix to prevent contamination
 	glPopMatrix();
@@ -448,6 +508,15 @@ public class SpaceJunk {
 	glPopMatrix();
     }
 
+    private void generateTitleAsteroids() {
+        DisplayMode dm = Display.getDisplayMode();
+        int count = (dm.getWidth() * dm.getHeight()) / 20000;
+        for(int i = 0; i < count; i++) {
+            int texnum = random.nextInt(5);
+            titleSprites.add(new Sprite6TitleAsteroid(sprites, particles, soundManager, random.nextInt(DISPLAY_WIDTH), random.nextInt(DISPLAY_HEIGHT), this, atex[texnum], texnum));
+        }
+    }
+
     private void generateAsteroid() {
         if(tc.getTickMillis() - lastAsteroid >= nextRand) {
             int texnum = random.nextInt(5);
@@ -519,15 +588,30 @@ public class SpaceJunk {
 
     public void setScore(int score) {
         this.score = score;
+        if(this.score > this.highScore) this.highScore = this.score;
     }
 
     public void incScore(int i) {
         score += i;
+        if(this.score > this.highScore) this.highScore = this.score;
     }
 
     public void decScore(int i) {
         score -= i;
         if(score < 0) score = 0;
+        if(this.score > this.highScore) this.highScore = this.score;
+    }
+
+    public long getHighScore() {
+        return highScore;
+    }
+
+    public int getDeaths() {
+        return deaths;
+    }
+
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
     }
 
     private static ByteBuffer createIcon(URL url) throws IOException {
@@ -554,7 +638,7 @@ public class SpaceJunk {
     public void setDifficulty(int difficulty) {
         DIFFICULTY = difficulty;
         nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
-        nextPowerupRand = random.nextInt(MathHelper.clamp(2000000 / DIFFICULTY, 1, 2000000)) / curLevel;
+        nextPowerupRand = random.nextInt(MathHelper.clamp(500000 / DIFFICULTY, 1, 500000));
     }
 
     public void changeDisplayMode(DisplayMode mode, boolean fullscreen) {
@@ -571,6 +655,10 @@ public class SpaceJunk {
             DISPLAY_HEIGHT = Display.getDisplayMode().getHeight();
             FULLSCREEN = fullscreen;
             resizeGL();
+            if(onTitle) {
+                titleSprites.clear();
+                this.generateTitleAsteroids();
+            }
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -582,6 +670,85 @@ public class SpaceJunk {
         for(int i = 0; i < sprites.size(); i++) {
             sprite = sprites.get(i);
             if(sprite instanceof Sprite2Asteroid || sprite instanceof PowerupSprite) sprite.setVisible(false);
+        }
+    }
+
+    private void processTitle() {
+        Shape mouse = new Rectangle(Mouse.getX(), DISPLAY_HEIGHT - Mouse.getY(), 1, 1);
+        if(titleFade < 1) titleFade = MathHelper.clamp(titleFade + 0.01F, 0, 1);
+
+        Sprite sprite = null;
+        for(int i = 0; i < titleSprites.size(); i++) {
+            sprite = titleSprites.get(i);
+            if(sprite.isVisible()) {
+                sprite.update();
+                sprite.render();
+            }
+        }
+        batmfa37.drawString((DISPLAY_WIDTH - batmfa37.getWidth("Junk from Outer Space")) / 2, 25, "Junk from Outer Space", Color.green);
+        batmfa37.drawString((DISPLAY_WIDTH - batmfa37.getWidth("High Score: " + highScore)) / 2, (DISPLAY_HEIGHT - batmfa37.getHeight("High Score: " + highScore)) - 10, "High Score: " + highScore, Color.cyan);
+
+        Title title = null;
+        if(titleScreen == 0) {
+            int iCount = 0;
+            for(int i = 0; i < titleMenu.size(); i++) {
+                title = titleMenu.get(i);
+                title.setTextY(120 + (30 * i));
+                if(mouse.intersects(title.getBounds()) && titleFade >= 1) {
+                    iCount++;
+                    if(!titleHover.equals(title.getText())) {
+                        soundManager.playSoundEffect("ui.button.rollover", false);
+                        titleHover = title.getText();
+                    }
+                    if(Mouse.isButtonDown(0) && !mouseClicked) {
+                        soundManager.playSoundEffect("ui.button.click", false);
+                        titleScreen = i + 1;
+                        title.setMouseClicked(true);
+                        title.setActive(true);
+                        title.renderScreen();
+                        break;
+                    }
+                    title.setColor(Color.red.addToCopy(new Color(0, 50, 50)));
+                    title.render();
+                }
+                else {
+                    title.setColor(Color.red);
+                    title.render();
+                }
+            }
+            if(iCount <= 0) titleHover = "";
+        }
+        else {
+            title = titleMenu.get(titleScreen - 1);
+            if(!title.isActive()) {
+                titleScreen = 0;
+                mouseClicked = true;
+            }
+            else title.renderScreen();
+        }
+        if(!Mouse.isButtonDown(0) && mouseClicked) mouseClicked = false;
+    }
+
+    public boolean isOnTitle() {
+        return this.onTitle;
+    }
+
+    public void setOnTitle(boolean onTitle) {
+        this.onTitle = onTitle;
+        Mouse.setGrabbed(!onTitle);
+        if(onTitle) {
+            ConfigManager.setProperty("high-score", this.highScore);
+            soundManager.playMusic("title", true);
+            titleSprites.clear();
+            this.generateTitleAsteroids();
+        }
+        else {
+            soundManager.stopMusic();
+            sprites.clear(); asteroids.clear(); powerups.clear(); particles.clear();
+            this.setScore(0);this.setDeaths(0); tc.setTicks(0);
+            nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
+            nextPowerupRand = random.nextInt(MathHelper.clamp(500000 / DIFFICULTY, 1, 500000));
+            sprites.add(new Sprite0Ship(sprites, particles, 48, DISPLAY_HEIGHT / 2, soundManager, this));
         }
     }
 }

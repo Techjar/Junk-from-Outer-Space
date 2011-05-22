@@ -32,11 +32,27 @@ public final class TickCounter {
         this.ticks++;
     }
 
+    public final void incTicks(long ticks) {
+        this.ticks += ticks;
+    }
+
+    public final void setTicks(long ticks) {
+        this.ticks = ticks;
+    }
+
     public final long getTicks() {
         return this.ticks;
     }
 
     public final long getTickMillis() {
         return Math.round(((double)this.ticks / (double)this.tickRate) * 1000D);
+    }
+
+    public final long getTickMicros() {
+        return Math.round(((double)this.ticks / (double)this.tickRate) * 1000000D);
+    }
+
+    public final long getTickNanos() {
+        return Math.round(((double)this.ticks / (double)this.tickRate) * 1000000000D);
     }
 }

@@ -20,7 +20,7 @@ import org.yaml.snakeyaml.Yaml;
  * @author Techjar
  */
 public final class ConfigManager {
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 
 
     private static int getVersion() {
@@ -85,6 +85,7 @@ public final class ConfigManager {
             cfg.put("video-height", Display.getDesktopDisplayMode().getHeight());
             cfg.put("fullscreen", false);
             cfg.put("vertical-sync", true);
+            cfg.put("high-score", 0);
 
             new File("options.yml").createNewFile();
             FileWriter fw = new FileWriter("options.yml");
@@ -111,6 +112,7 @@ public final class ConfigManager {
             if(!cfg.containsKey("video-height")) cfg.put("video-height", Display.getDesktopDisplayMode().getHeight());
             if(!cfg.containsKey("fullscreen")) cfg.put("fullscreen", false);
             if(!cfg.containsKey("vertical-sync")) cfg.put("vertical-sync", true);
+            if(!cfg.containsKey("high-score")) cfg.put("high-score", 0);
             FileWriter fw = new FileWriter("options.yml");
             yaml.dump(cfg, fw); fw.close();
         }
