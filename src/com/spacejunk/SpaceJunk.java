@@ -91,7 +91,7 @@ public class SpaceJunk {
             System.exit(0);
         }
         
-        // MEGA IMPORT SHUTDOWN HOOK!!!!!
+        // MEGA IMPORTANT SHUTDOWN HOOK!!!!!
         Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
 
         // Setup sound manager
@@ -165,8 +165,8 @@ public class SpaceJunk {
         Keyboard.create();
 
         // Mouse
-        Mouse.setGrabbed(false);
         Mouse.create();
+        Mouse.setGrabbed(false);
 
         /*batmfa20 = new UnicodeFont("resources/fonts/batmfa_.ttf", 20, false, false);
         batmfa20.addAsciiGlyphs();
