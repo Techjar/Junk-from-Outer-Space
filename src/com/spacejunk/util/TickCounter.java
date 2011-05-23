@@ -11,13 +11,14 @@ package com.spacejunk.util;
  * @author Techjar
  */
 public final class TickCounter {
-    private int tickRate;
+    private int tickRate, fps;
     private long ticks;
 
 
     public TickCounter(int tickRate) {
         this.ticks = 0;
         this.tickRate = tickRate;
+        this.fps = tickRate;
     }
     
     public final int getTickRate() {
@@ -42,6 +43,22 @@ public final class TickCounter {
 
     public final long getTicks() {
         return this.ticks;
+    }
+
+    public final int getFps() {
+        return this.fps;
+    }
+
+    public final void setFps(int fps) {
+        this.fps = fps;
+    }
+
+    public final float getLagCompensation() {
+        return (float)this.tickRate / (float)this.fps;
+    }
+
+    public final float getLagDecompensation() {
+        return (float)this.fps / (float)this.tickRate;
     }
 
     public final long getTickMillis() {

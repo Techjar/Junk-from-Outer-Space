@@ -24,7 +24,8 @@ import com.spacejunk.particles.*;
 public class Sprite2Asteroid implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y, z, hits, yDir, yTimes, yNextTime, rotSpeed, texnum, ySpeed;
+    private int id, hits, yDir, oldYDir, yTimes, yNextTime, rotSpeed, texnum, xSpeed, yTimesSmooth;
+    private float x, y, z, nextY;
     private long flashTime;
     private boolean visible, rotDir, flash, useFullPoly;
     private Random random;
@@ -35,7 +36,7 @@ public class Sprite2Asteroid implements Sprite {
     private TickCounter tc;
 
 
-    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj, Texture tex, int texnum) {
+    public Sprite2Asteroid(List sprites, List particles, SoundManager sm, float x, float y, SpaceJunk sj, Texture tex, int texnum) {
         try {
             random = new Random();
             this.sj = sj;
@@ -43,12 +44,12 @@ public class Sprite2Asteroid implements Sprite {
             this.rotDir = random.nextBoolean();
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
-            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 2; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextBoolean() ? 1 : -1;
-            this.visible = true; this.flash = false;
-            this.useFullPoly = false; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
+            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 2; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
+            this.visible = true; this.flash = false; this.yTimesSmooth = Integer.MAX_VALUE; this.nextY = 1; this.oldYDir = 0;
+            this.useFullPoly = true; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
             this.tex = tex;
             this.texnum = texnum;
-            this.ySpeed = random.nextInt(4) + 1;
+            this.xSpeed = random.nextInt(4) + 1;
             this.sm = sm;
             this.hitbox = new Polygon(this.getHitbox(this.texnum));
             hitbox.setCenterX(this.x + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getX() : 0));
@@ -63,17 +64,17 @@ public class Sprite2Asteroid implements Sprite {
     }
 
     public void update() {
-        this.y = this.y + yDir; yTimes++;
-        this.x -= this.ySpeed;
+        this.y += (float)yDir; yTimes++;
+        this.x -= this.xSpeed;
         this.z = MathHelper.loop(rotDir ? this.z + this.rotSpeed : this.z - this.rotSpeed, 0, 360);
-        /*if(yTimesSmooth < 30 && yDir != 0 && nextY <= 1) {
-            nextY += 0.03F;
+        /*if(yTimesSmooth < 30 * yDir && nextY != yDir) {
+            nextY += yDir / MathHelper.clamp(30 * yDir, Float.MIN_VALUE, Float.MAX_VALUE);
             yTimesSmooth++;
         }*/
         if(yTimes >= yNextTime) {
-            yDir = random.nextInt(5) - 2;
+            oldYDir = yDir; yDir = random.nextInt(5) - 2;
             yNextTime = (yDir == 0 ? random.nextInt(60) : MathHelper.clamp(random.nextInt(300), 60, 300));
-            yTimes = 0;
+            yTimes = 0; yTimesSmooth = 0;
         }
         if(this.x + 64 <= 0 || this.hits <= 0) {
             this.setVisible(false);
@@ -142,19 +143,19 @@ public class Sprite2Asteroid implements Sprite {
         return this.visible;
     }
 
-    public int getX() {
+    public float getX() {
         return this.x;
     }
 
-    public int getY() {
+    public float getY() {
         return this.y;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 
@@ -166,6 +167,10 @@ public class Sprite2Asteroid implements Sprite {
 
     public Shape getBounds() {
         return this.bounds;
+    }
+
+    public Vector2f getLocation() {
+        return new Vector2f(this.x, this.y);
     }
 
     private float[] getHitbox(int i) {
@@ -188,5 +193,19 @@ public class Sprite2Asteroid implements Sprite {
             case 4: return new Vector2f(-4, -4);
             default: return new Vector2f(0, 0);
         }
+    }
+
+    public int getYDirection() {
+        return this.yDir;
+    }
+
+    public void setYDirection(int yDir) {
+        oldYDir = this.yDir; this.yDir = yDir;
+        yNextTime = (this.yDir == 0 ? random.nextInt(60) : MathHelper.clamp(random.nextInt(300), 60, 300));
+        yTimes = 0; yTimesSmooth = 0;
+    }
+
+    public int getSpeed() {
+        return this.xSpeed;
     }
 }

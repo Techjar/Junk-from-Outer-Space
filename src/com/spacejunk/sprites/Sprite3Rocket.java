@@ -25,7 +25,8 @@ import org.newdawn.slick.openal.SoundStore;
 public class Sprite3Rocket implements PowerupWeaponSprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y, ySpeed, soundID, damage;
+    private int id, ySpeed, soundID, damage;
+    private float x, y;
     private long ySpeedTime;
     private boolean visible;
     private Texture tex;
@@ -38,7 +39,7 @@ public class Sprite3Rocket implements PowerupWeaponSprite {
     public static final String KEY_NAME = Powerup.ROCKET;
 
 
-    public Sprite3Rocket(SpaceJunk sj, List sprites, List particles, SoundManager sm, int x, int y, Texture tex) {
+    public Sprite3Rocket(SpaceJunk sj, List sprites, List particles, SoundManager sm, float x, float y, Texture tex) {
         try {
             this.sj = sj;
             this.tc = sj.getTickCounter();
@@ -110,24 +111,28 @@ public class Sprite3Rocket implements PowerupWeaponSprite {
         return this.visible;
     }
 
-    public int getX() {
+    public float getX() {
         return this.x;
     }
 
-    public int getY() {
+    public float getY() {
         return this.y;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 
     public Shape getBounds() {
         return this.bounds;
+    }
+
+    public Vector2f getLocation() {
+        return new Vector2f(this.x, this.y);
     }
 
     public void impact() {

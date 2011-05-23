@@ -18,9 +18,10 @@ public interface Sprite {
     int getID();
     void setVisible(boolean visible);
     boolean isVisible();
-    int getX();
-    int getY();
-    void setX(int x);
-    void setY(int y);
+    float getX();
+    float getY();
+    void setX(float x);
+    void setY(float y);
     Shape getBounds();
+    Vector2f getLocation();
 }

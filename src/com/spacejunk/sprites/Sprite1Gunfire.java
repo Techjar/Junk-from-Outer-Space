@@ -24,7 +24,8 @@ import com.spacejunk.util.*;
 public class Sprite1Gunfire implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y;
+    private int id;
+    private float x, y;
     private long lastfire;
     private boolean visible, big;
     private Texture tex;
@@ -36,7 +37,7 @@ public class Sprite1Gunfire implements Sprite {
     public static final String KEY_NAME = Powerup.BIGSHOT;
 
 
-    public Sprite1Gunfire(SpaceJunk sj, List sprites, List particles, SoundManager sm, int x, int y, Texture tex, boolean big) {
+    public Sprite1Gunfire(SpaceJunk sj, List sprites, List particles, SoundManager sm, float x, float y, Texture tex, boolean big) {
         this.sj = sj;
         this.tc = sj.getTickCounter();
         this.sprites = sprites; this.particles = particles; this.big = big;
@@ -89,24 +90,28 @@ public class Sprite1Gunfire implements Sprite {
         return this.visible;
     }
 
-    public int getX() {
+    public float getX() {
         return this.x;
     }
 
-    public int getY() {
+    public float getY() {
         return this.y;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 
     public Shape getBounds() {
         return this.bounds;
+    }
+
+    public Vector2f getLocation() {
+        return new Vector2f(this.x, this.y);
     }
 
     public boolean isBig() {

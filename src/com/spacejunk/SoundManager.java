@@ -90,6 +90,12 @@ public class SoundManager {
         return -1;
     }
 
+    public int playSoundEffect(String name, boolean loop, float pitch) {
+        Audio sound = soundEffects.get(name);
+        if(sound != null) return sound.playAsSoundEffect(pitch, 1, loop);
+        return -1;
+    }
+
     public void stopSoundEffect(int id) {
         SoundStore.get().stopSoundEffect(id);
     }

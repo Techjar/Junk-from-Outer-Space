@@ -34,7 +34,8 @@ import org.newdawn.slick.Color;
 public class Sprite0Ship implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y;
+    private int id;
+    private float x, y;
     private long lastFire, hitTime, invTime, invForTime, invFrameTime;
     private long rocketShots;
     private boolean visible, hit, invincible, invState, respawning;
@@ -50,7 +51,7 @@ public class Sprite0Ship implements Sprite {
     private Texture[] powerupTex;
 
 
-    public Sprite0Ship(List sprites, List particles, int x, int y, SoundManager sm, SpaceJunk sj) {
+    public Sprite0Ship(List sprites, List particles, float x, float y, SoundManager sm, SpaceJunk sj) {
         try {
             this.sj = sj;
             this.tc = sj.getTickCounter();
@@ -224,19 +225,19 @@ public class Sprite0Ship implements Sprite {
         return this.visible;
     }
 
-    public int getX() {
+    public float getX() {
         return this.x;
     }
 
-    public int getY() {
+    public float getY() {
         return this.y;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 
@@ -273,6 +274,10 @@ public class Sprite0Ship implements Sprite {
 
     public Shape getBounds() {
         return this.bounds;
+    }
+
+    public Vector2f getLocation() {
+        return new Vector2f(this.x, this.y);
     }
 
     public void addPowerup(String powerup) {

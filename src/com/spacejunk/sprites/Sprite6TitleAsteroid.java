@@ -24,17 +24,18 @@ import com.spacejunk.particles.*;
 public class Sprite6TitleAsteroid implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, x, y, z, rotSpeed;
-    private boolean visible, rotDir;
+    private int id, rotSpeed, texnum;
+    private float x, y, z;
+    private boolean visible, rotDir, useFullPoly;
     private Random random;
     private Texture tex;
     private SoundManager sm;
     private SpaceJunk sj;
-    private Shape bounds;
+    private Shape bounds, hitbox;
     private TickCounter tc;
 
 
-    public Sprite6TitleAsteroid(List sprites, List particles, SoundManager sm, int x, int y, SpaceJunk sj, Texture tex, int texnum) {
+    public Sprite6TitleAsteroid(List sprites, List particles, SoundManager sm, float x, float y, SpaceJunk sj, Texture tex, int texnum) {
         try {
             random = new Random();
             this.sj = sj;
@@ -43,10 +44,15 @@ public class Sprite6TitleAsteroid implements Sprite {
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
             this.id = 6; this.x = x; this.y = y; this.z = 0;
-            this.visible = true;
+            this.visible = true; this.texnum = texnum;
             this.tex = tex;
             this.sm = sm;
-            this.bounds = new Rectangle(this.x, this.y, 1, 1);
+            this.useFullPoly = false; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
+            this.hitbox = new Polygon(this.getHitbox(this.texnum));
+            hitbox.setCenterX(this.x + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getX() : 0));
+            hitbox.setCenterY(this.y + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getY() : 0));
+            if(!this.useFullPoly) this.hitbox = new Rectangle(hitbox.getMinX(), hitbox.getMinY(), hitbox.getWidth(), hitbox.getHeight());
+            this.bounds = this.hitbox;
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -100,23 +106,49 @@ public class Sprite6TitleAsteroid implements Sprite {
         return this.visible;
     }
 
-    public int getX() {
+    public float getX() {
         return this.x;
     }
 
-    public int getY() {
+    public float getY() {
         return this.y;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 
     public Shape getBounds() {
         return this.bounds;
+    }
+
+    public Vector2f getLocation() {
+        return new Vector2f(this.x, this.y);
+    }
+
+    private float[] getHitbox(int i) {
+        switch(i) {
+            case 0: return PolygonHitbox.ASTEROID_0;
+            case 1: return PolygonHitbox.ASTEROID_1;
+            case 2: return PolygonHitbox.ASTEROID_2;
+            case 3: return PolygonHitbox.ASTEROID_3;
+            case 4: return PolygonHitbox.ASTEROID_4;
+            default: return PolygonHitbox.ASTEROID_0;
+        }
+    }
+
+    private Vector2f getHitboxOffset(int i) {
+        switch(i) {
+            case 0: return new Vector2f(-1, 3);
+            case 1: return new Vector2f(1, -1);
+            case 2: return new Vector2f(-1, 1);
+            case 3: return new Vector2f(-2, -5);
+            case 4: return new Vector2f(-4, -4);
+            default: return new Vector2f(0, 0);
+        }
     }
 }
