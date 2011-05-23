@@ -86,7 +86,7 @@ public class SpaceJunk {
      */
     public SpaceJunk(int difficulty, DisplayMode mode, boolean fullscreen, boolean vSync, float musicVolume, float soundVolume, boolean renderColl) throws LWJGLException, SlickException, FileNotFoundException, IOException, JFOSException, InterruptedException {
         // OS check here to be mean...
-        if(OS.getOS() == OS.UNKNOWN) {
+        if(OS.getOS() == OS.UNKNOWN || OS.getOS() == OS.MAC) {
             Sys.alert("Unsupported OS", "Sorry, your operating system is not compatible with Junk from Outer Space.");
             System.exit(0);
         }
