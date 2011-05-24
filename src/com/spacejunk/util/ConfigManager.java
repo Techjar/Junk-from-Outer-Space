@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -71,6 +72,17 @@ public final class ConfigManager {
 
     private static void init() {
         try {
+            DisplayMode[] modes = Display.getAvailableDisplayModes(); DisplayMode defMode = Display.getDesktopDisplayMode();
+            for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
+                if(modes[i].getWidth() * modes[i].getHeight() == 800 * 600) defMode = modes[i];
+            }
+            for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
+                if(modes[i].getWidth() * modes[i].getHeight() == 640 * 480) defMode = modes[i];
+            }
+            for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
+                if(modes[i].getWidth() * modes[i].getHeight() == 1024 * 768) defMode = modes[i];
+            }
+
             DumperOptions dumper = new DumperOptions();
             dumper.setLineBreak(DumperOptions.LineBreak.getPlatformLineBreak());
             dumper.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -81,8 +93,8 @@ public final class ConfigManager {
             cfg.put("music-volume", 1.0F);
             cfg.put("sound-volume", 1.0F);
             cfg.put("difficulty", 0);
-            cfg.put("video-width", Display.getDesktopDisplayMode().getWidth());
-            cfg.put("video-height", Display.getDesktopDisplayMode().getHeight());
+            cfg.put("video-width", defMode.getWidth());
+            cfg.put("video-height", defMode.getHeight());
             cfg.put("fullscreen", false);
             cfg.put("vertical-sync", true);
             cfg.put("high-score", 0);
@@ -98,6 +110,17 @@ public final class ConfigManager {
 
     private static void update() {
         try {
+            DisplayMode[] modes = Display.getAvailableDisplayModes(); DisplayMode defMode = Display.getDesktopDisplayMode();
+            for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
+                if(modes[i].getWidth() * modes[i].getHeight() == 800 * 600) defMode = modes[i];
+            }
+            for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
+                if(modes[i].getWidth() * modes[i].getHeight() == 640 * 480) defMode = modes[i];
+            }
+            for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
+                if(modes[i].getWidth() * modes[i].getHeight() == 1024 * 768) defMode = modes[i];
+            }
+
             DumperOptions dumper = new DumperOptions();
             dumper.setLineBreak(DumperOptions.LineBreak.getPlatformLineBreak());
             dumper.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -108,8 +131,8 @@ public final class ConfigManager {
             if(!cfg.containsKey("music-volume")) cfg.put("music-volume", 1.0F);
             if(!cfg.containsKey("sound-volume")) cfg.put("sound-volume", 1.0F);
             if(!cfg.containsKey("difficulty")) cfg.put("difficulty", 0);
-            if(!cfg.containsKey("video-width")) cfg.put("video-width", Display.getDesktopDisplayMode().getWidth());
-            if(!cfg.containsKey("video-height")) cfg.put("video-height", Display.getDesktopDisplayMode().getHeight());
+            if(!cfg.containsKey("video-width")) cfg.put("video-width", defMode.getWidth());
+            if(!cfg.containsKey("video-height")) cfg.put("video-height", defMode.getHeight());
             if(!cfg.containsKey("fullscreen")) cfg.put("fullscreen", false);
             if(!cfg.containsKey("vertical-sync")) cfg.put("vertical-sync", true);
             if(!cfg.containsKey("high-score")) cfg.put("high-score", 0);
