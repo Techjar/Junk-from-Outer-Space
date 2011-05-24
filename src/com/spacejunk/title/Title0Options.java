@@ -46,7 +46,7 @@ public class Title0Options implements Title {
     public Title0Options(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) throws LWJGLException {
         this.y = 0; this.pressed = 0; this.difficulty = sj.getDifficulty(); this.displayInt = 0;
         this.mouseClicked = false; this.active = false; this.hovered = false;
-        this.text = "OPTIONS";
+        this.text = "Options";
         this.sm = sm;
         this.color = color;
         this.font = font;
@@ -82,11 +82,11 @@ public class Title0Options implements Title {
 
     public void renderScreen() {
         Shape mouse = new Rectangle(Mouse.getX(), Display.getDisplayMode().getHeight() - Mouse.getY(), 1, 1);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("MUSIC VOLUME")) / 2) - 100, 100, "MUSIC VOLUME", Color.red);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("SOUND VOLUME")) / 2) - 105, 130, "SOUND VOLUME", Color.red);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("DIFFICULTY")) / 2) - 76, 160, "DIFFICULTY", Color.red);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("VIDEO MODE")) / 2) - 83, 190, "VIDEO MODE", Color.red);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("FULLSCREEN")) / 2) - 85, 220, "FULLSCREEN", Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Music Volume")) / 2) - 100, 100, "Music Volume", Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Sound Volume")) / 2) - 105, 130, "Sound Volume", Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Difficulty")) / 2) - 76, 160, "Difficulty", Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Video Mode")) / 2) - 83, 190, "Video Mode", Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Fullscreen")) / 2) - 85, 220, "Fullscreen", Color.red);
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 108, 200, 2, Color.darkGray);
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 138, 200, 2, Color.darkGray);
 
@@ -94,14 +94,14 @@ public class Title0Options implements Title {
         Shape snd = new Rectangle(((Display.getDisplayMode().getWidth() - 200) / 2) + 96 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18);
         Shape diff = new Rectangle(Display.getDisplayMode().getWidth() / 2, 160, font.getWidth(diffModes[getDifficultyRev(this.difficulty)]), font.getHeight(diffModes[getDifficultyRev(this.difficulty)]));
         Shape disp = new Rectangle(Display.getDisplayMode().getWidth() / 2, 190, font.getWidth(modeNames[this.displayInt]), font.getHeight(modeNames[this.displayInt]));
-        Shape fs = new Rectangle(Display.getDisplayMode().getWidth() / 2, 220, font.getWidth(Display.isFullscreen() ? "ON" : "OFF"), font.getHeight(Display.isFullscreen() ? "ON" : "OFF"));
-        Shape back = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth("BACK")) / 2, 270, font.getWidth("BACK"), font.getHeight("BACK"));
+        Shape fs = new Rectangle(Display.getDisplayMode().getWidth() / 2, 220, font.getWidth(Display.isFullscreen() ? "On" : "Off"), font.getHeight(Display.isFullscreen() ? "On" : "Off"));
+        Shape back = new Rectangle((Display.getDisplayMode().getWidth() - font.getWidth("Back")) / 2, 270, font.getWidth("Back"), font.getHeight("Back"));
         drawSlider(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getMusicVolume() * 200F), 100, 8, 18, mouse.intersects(mus) || this.pressed == 1 ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         drawSlider(((Display.getDisplayMode().getWidth() - 200) / 2) + 100 + Math.round(sm.getSoundVolume() * 200F), 130, 8, 18, mouse.intersects(snd) || this.pressed == 2 ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         font.drawString(Display.getDisplayMode().getWidth() / 2, 160, diffModes[getDifficultyRev(this.difficulty)], mouse.intersects(diff) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
         font.drawString(Display.getDisplayMode().getWidth() / 2, 190, modeNames[this.displayInt], mouse.intersects(disp) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
-        font.drawString(Display.getDisplayMode().getWidth() / 2, 220, Display.isFullscreen() ? "ON" : "OFF", mouse.intersects(fs) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
-        font.drawString((Display.getDisplayMode().getWidth() - font.getWidth("BACK")) / 2, 270, "BACK", mouse.intersects(back) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
+        font.drawString(Display.getDisplayMode().getWidth() / 2, 220, Display.isFullscreen() ? "On" : "Off", mouse.intersects(fs) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
+        font.drawString((Display.getDisplayMode().getWidth() - font.getWidth("Back")) / 2, 270, "Back", mouse.intersects(back) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
 
         if((mouse.intersects(mus) || mouse.intersects(snd) || mouse.intersects(diff) || mouse.intersects(disp) || mouse.intersects(back) || mouse.intersects(fs)) && !this.hovered && this.pressed == 0) {
             sm.playSoundEffect("ui.button.rollover", false);

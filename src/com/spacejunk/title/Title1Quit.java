@@ -31,7 +31,7 @@ public class Title1Quit implements Title {
     public Title1Quit(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) {
         this.y = 0;
         this.mouseClicked = false; this.active = false; this.hovered = false;
-        this.text = "QUIT";
+        this.text = "Quit";
         this.sm = sm;
         this.color = color;
         this.font = font;
@@ -45,12 +45,12 @@ public class Title1Quit implements Title {
 
     public void renderScreen() {
         Shape mouse = new Rectangle(Mouse.getX(), Display.getDisplayMode().getHeight() - Mouse.getY(), 1, 1);
-        font.drawString((Display.getDisplayMode().getWidth() - font.getWidth("REALLY QUIT?")) / 2, ((Display.getDisplayMode().getHeight() - font.getHeight("REALLY QUIT?")) / 2) - 15, "REALLY QUIT?", Color.red);
+        font.drawString((Display.getDisplayMode().getWidth() - font.getWidth("Really quit?")) / 2, ((Display.getDisplayMode().getHeight() - font.getHeight("Really quit?")) / 2) - 15, "Really quit?", Color.red);
 
-        Shape yes = new Rectangle(((Display.getDisplayMode().getWidth() - font.getWidth("YES")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("YES")) / 2) + 15, font.getWidth("YES"), font.getHeight("YES"));
-        Shape no = new Rectangle(((Display.getDisplayMode().getWidth() - font.getWidth("NO")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("NO")) / 2) + 15, font.getWidth("NO"), font.getHeight("NO"));
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("YES")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("YES")) / 2) + 15, "YES", mouse.intersects(yes) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("NO")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("NO")) / 2) + 15, "NO", mouse.intersects(no) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
+        Shape yes = new Rectangle(((Display.getDisplayMode().getWidth() - font.getWidth("Yes")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("Yes")) / 2) + 15, font.getWidth("Yes"), font.getHeight("Yes"));
+        Shape no = new Rectangle(((Display.getDisplayMode().getWidth() - font.getWidth("No")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("No")) / 2) + 15, font.getWidth("No"), font.getHeight("No"));
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Yes")) / 2) - 30, ((Display.getDisplayMode().getHeight() - font.getHeight("Yes")) / 2) + 15, "Yes", mouse.intersects(yes) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("No")) / 2) + 30, ((Display.getDisplayMode().getHeight() - font.getHeight("No")) / 2) + 15, "No", mouse.intersects(no) ? Color.red.addToCopy(new Color(0, 50, 50)) : Color.red);
 
         if((mouse.intersects(yes) || mouse.intersects(no)) && !this.hovered) {
             sm.playSoundEffect("ui.button.rollover", false);

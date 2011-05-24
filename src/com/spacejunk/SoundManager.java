@@ -21,6 +21,7 @@ import com.spacejunk.util.MathHelper;
  * @author Techjar
  */
 public class SoundManager {
+    private int tracks;
     private Audio nullMusic, randMusic;
     private Map<String, Audio> soundEffects;
     private Random random = new Random();
@@ -28,6 +29,7 @@ public class SoundManager {
 
     public SoundManager() {
         try {
+            for(this.tracks = 0; new File("resources/music/" + this.tracks + ".ogg").exists(); this.tracks++){}
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
             soundEffects = new HashMap<String, Audio>();
             soundEffects.put("ui.button.click", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/click.wav")));
@@ -54,10 +56,40 @@ public class SoundManager {
         nullMusic.playAsMusic(1, 1, false);
     }
 
+    public void playMusic(int track) {
+        try {
+            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
+            randMusic.playAsMusic(1, 1, false);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void playMusic(int track, boolean loop) {
         try {
             randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
             randMusic.playAsMusic(1, 1, loop);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void playMusic(int track, boolean loop, float pitch) {
+        try {
+            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
+            randMusic.playAsMusic(pitch, 1, loop);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void playMusic(String track) {
+        try {
+            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
+            randMusic.playAsMusic(1, 1, false);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -74,16 +106,26 @@ public class SoundManager {
         }
     }
 
-    public void playRandomMusic() {
+    public void playMusic(String track, boolean loop, float pitch) {
         try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + random.nextInt(20) + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, false);
+            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
+            randMusic.playAsMusic(pitch, 1, loop);
         }
         catch(Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    public void playRandomMusic() {
+        this.playMusic(random.nextInt(this.tracks));
+    }
+
+    public int playSoundEffect(String name) {
+        Audio sound = soundEffects.get(name);
+        if(sound != null) return sound.playAsSoundEffect(1, 1, false);
+        return -1;
+    }
+
     public int playSoundEffect(String name, boolean loop) {
         Audio sound = soundEffects.get(name);
         if(sound != null) return sound.playAsSoundEffect(1, 1, loop);

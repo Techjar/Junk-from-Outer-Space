@@ -31,7 +31,7 @@ public class Pause2Resume implements Pause {
     public Pause2Resume(UnicodeFont font, Color color, SoundManager sm, SpaceJunk sj) {
         this.y = 0; this.lastMouseX = 0; this.lastMouseY = 0;
         this.mouseClicked = false; this.active = false;
-        this.text = "RESUME GAME";
+        this.text = "Resume Game";
         this.sm = sm;
         this.color = color;
         this.font = font;

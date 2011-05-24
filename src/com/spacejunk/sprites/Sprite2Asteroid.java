@@ -44,7 +44,7 @@ public class Sprite2Asteroid implements Sprite {
             this.rotDir = random.nextBoolean();
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
-            this.id = 2; this.x = x + 64; this.y = y; this.z = 0; this.hits = 2; this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
+            this.id = 2; this.x = x + tex.getImageWidth(); this.y = y; this.z = 0; this.hits = (int)(2F * ((float)tex.getImageWidth() / 64F)); this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
             this.visible = true; this.flash = false; this.yTimesSmooth = Integer.MAX_VALUE; this.nextY = 1; this.oldYDir = 0;
             this.useFullPoly = true; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
             this.tex = tex;
@@ -76,11 +76,11 @@ public class Sprite2Asteroid implements Sprite {
             yNextTime = (yDir == 0 ? random.nextInt(60) : MathHelper.clamp(random.nextInt(300), 60, 300));
             yTimes = 0; yTimesSmooth = 0;
         }
-        if(this.x + 64 <= 0 || this.hits <= 0) {
+        if(this.x + tex.getImageWidth() <= 0 || this.hits <= 0) {
             this.setVisible(false);
             if(this.hits <= 0) {
                 try {
-                    particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, 1));
+                    particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, tex.getImageWidth() > 128 ? 2 : 1));
                     sm.playSoundEffect("ambient.explode.1", false);
                 }
                 catch(Exception e) {
@@ -122,9 +122,6 @@ public class Sprite2Asteroid implements Sprite {
                 glTexCoord2f(tex.getWidth(), tex.getHeight()); glVertex2f(tex.getImageWidth(), tex.getImageHeight());
                 glTexCoord2f(tex.getWidth(), 0); glVertex2f(tex.getImageWidth(), 0);
             glEnd();
-
-            // Red tint
-            //glColorMaterial(GL_FRONT, GL_COLOR_MATERIAL_FACE);
 
             // restore the model view matrix to prevent contamination
             glPopMatrix();
@@ -180,7 +177,10 @@ public class Sprite2Asteroid implements Sprite {
             case 2: return PolygonHitbox.ASTEROID_2;
             case 3: return PolygonHitbox.ASTEROID_3;
             case 4: return PolygonHitbox.ASTEROID_4;
-            default: return PolygonHitbox.ASTEROID_0;
+            case 5: return PolygonHitbox.ASTEROID_5;
+            case 6: return PolygonHitbox.ASTEROID_6;
+            case 7: return PolygonHitbox.ASTEROID_7;
+            default: return PolygonHitbox.DEFAULT;
         }
     }
 
@@ -191,6 +191,9 @@ public class Sprite2Asteroid implements Sprite {
             case 2: return new Vector2f(-1, 1);
             case 3: return new Vector2f(-2, -5);
             case 4: return new Vector2f(-4, -4);
+            case 5: return new Vector2f(-1, 1);
+            case 6: return new Vector2f(4, -3);
+            case 7: return new Vector2f(0, 5);
             default: return new Vector2f(0, 0);
         }
     }

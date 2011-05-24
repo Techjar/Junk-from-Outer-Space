@@ -33,7 +33,7 @@ public class Title2StartGame implements Title {
         this.sj = sj;
         this.y = 0;
         this.mouseClicked = false; this.active = false; this.hovered = false;
-        this.text = "START GAME";
+        this.text = "Start Game";
         this.sm = sm;
         this.color = color;
         this.font = font;

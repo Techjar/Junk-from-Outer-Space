@@ -21,7 +21,7 @@ import com.spacejunk.particles.*;
  * 
  * @author Techjar
  */
-public class Sprite6TitleAsteroid implements Sprite {
+public class Sprite6TitleAsteroid implements TitleSprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
     private int id, rotSpeed, texnum;
@@ -47,7 +47,7 @@ public class Sprite6TitleAsteroid implements Sprite {
             this.visible = true; this.texnum = texnum;
             this.tex = tex;
             this.sm = sm;
-            this.useFullPoly = false; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
+            this.useFullPoly = true; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
             this.hitbox = new Polygon(this.getHitbox(this.texnum));
             hitbox.setCenterX(this.x + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getX() : 0));
             hitbox.setCenterY(this.y + (this.useFullPoly ? this.getHitboxOffset(this.texnum).getY() : 0));
@@ -130,6 +130,10 @@ public class Sprite6TitleAsteroid implements Sprite {
         return new Vector2f(this.x, this.y);
     }
 
+    public Texture getTexture() {
+        return this.tex;
+    }
+
     private float[] getHitbox(int i) {
         switch(i) {
             case 0: return PolygonHitbox.ASTEROID_0;
@@ -137,7 +141,8 @@ public class Sprite6TitleAsteroid implements Sprite {
             case 2: return PolygonHitbox.ASTEROID_2;
             case 3: return PolygonHitbox.ASTEROID_3;
             case 4: return PolygonHitbox.ASTEROID_4;
-            default: return PolygonHitbox.ASTEROID_0;
+            case 5: return PolygonHitbox.ASTEROID_5;
+            default: return PolygonHitbox.DEFAULT;
         }
     }
 
