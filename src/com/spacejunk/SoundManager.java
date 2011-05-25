@@ -31,16 +31,7 @@ public class SoundManager {
         try {
             for(this.tracks = 0; new File("resources/music/" + this.tracks + ".ogg").exists(); this.tracks++){}
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
-            soundEffects = new HashMap<String, Audio>();
-            soundEffects.put("ui.button.click", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/click.wav")));
-            soundEffects.put("ui.button.clickrelease", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/clickrelease.wav")));
-            soundEffects.put("ui.button.rollover", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/rollover.wav")));
-            soundEffects.put("ship.gunfire", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ship/gunfire.wav")));
-            soundEffects.put("ship.powerup", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ship/powerup.wav")));
-            soundEffects.put("ambient.explode.0", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/0.wav")));
-            soundEffects.put("ambient.explode.1", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/1.wav")));
-            soundEffects.put("ambient.explode.2", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/2.wav")));
-            soundEffects.put("weapon.rocket", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/weapon/rocket.wav")));
+            this.initSoundList();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -56,60 +47,22 @@ public class SoundManager {
         nullMusic.playAsMusic(1, 1, false);
     }
 
-    public void playMusic(int track) {
-        try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, false);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+    public void playMusic(Object track) {
+        this.playMusic(track, false, 1, 1);
     }
 
-    public void playMusic(int track, boolean loop) {
-        try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, loop);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+    public void playMusic(Object track, boolean loop) {
+        this.playMusic(track, loop, 1, 1);
     }
 
-    public void playMusic(int track, boolean loop, float pitch) {
-        try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(pitch, 1, loop);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+    public void playMusic(Object track, boolean loop, float pitch) {
+        this.playMusic(track, loop, pitch, 1);
     }
 
-    public void playMusic(String track) {
+    public void playMusic(Object track, boolean loop, float pitch, float gain) {
         try {
             randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, false);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void playMusic(String track, boolean loop) {
-        try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(1, 1, loop);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void playMusic(String track, boolean loop, float pitch) {
-        try {
-            randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
-            randMusic.playAsMusic(pitch, 1, loop);
+            randMusic.playAsMusic(pitch, gain, loop);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -121,20 +74,20 @@ public class SoundManager {
     }
 
     public int playSoundEffect(String name) {
-        Audio sound = soundEffects.get(name);
-        if(sound != null) return sound.playAsSoundEffect(1, 1, false);
-        return -1;
+        return this.playSoundEffect(name, false, 1, 1);
     }
 
     public int playSoundEffect(String name, boolean loop) {
-        Audio sound = soundEffects.get(name);
-        if(sound != null) return sound.playAsSoundEffect(1, 1, loop);
-        return -1;
+        return this.playSoundEffect(name, loop, 1, 1);
     }
 
     public int playSoundEffect(String name, boolean loop, float pitch) {
+        return this.playSoundEffect(name, loop, pitch, 1);
+    }
+
+    public int playSoundEffect(String name, boolean loop, float pitch, float gain) {
         Audio sound = soundEffects.get(name);
-        if(sound != null) return sound.playAsSoundEffect(pitch, 1, loop);
+        if(sound != null) return sound.playAsSoundEffect(pitch, gain, loop);
         return -1;
     }
 
@@ -159,6 +112,19 @@ public class SoundManager {
     }
 
     public Audio getRandMusic() {
-        return randMusic;
+        return this.randMusic;
+    }
+
+    private void initSoundList() throws java.io.FileNotFoundException, java.io.IOException {
+        soundEffects = new HashMap<String, Audio>();
+            soundEffects.put("ui.button.click", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/click.wav")));
+            soundEffects.put("ui.button.clickrelease", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/clickrelease.wav")));
+            soundEffects.put("ui.button.rollover", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/rollover.wav")));
+            soundEffects.put("ship.gunfire", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ship/gunfire.wav")));
+            soundEffects.put("ship.powerup", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ship/powerup.wav")));
+            soundEffects.put("ambient.explode.0", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/0.wav")));
+            soundEffects.put("ambient.explode.1", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/1.wav")));
+            soundEffects.put("ambient.explode.2", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/2.wav")));
+            soundEffects.put("weapon.rocket", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/weapon/rocket.wav")));
     }
 }

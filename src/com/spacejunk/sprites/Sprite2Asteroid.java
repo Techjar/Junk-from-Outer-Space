@@ -171,31 +171,11 @@ public class Sprite2Asteroid implements Sprite {
     }
 
     private float[] getHitbox(int i) {
-        switch(i) {
-            case 0: return PolygonHitbox.ASTEROID_0;
-            case 1: return PolygonHitbox.ASTEROID_1;
-            case 2: return PolygonHitbox.ASTEROID_2;
-            case 3: return PolygonHitbox.ASTEROID_3;
-            case 4: return PolygonHitbox.ASTEROID_4;
-            case 5: return PolygonHitbox.ASTEROID_5;
-            case 6: return PolygonHitbox.ASTEROID_6;
-            case 7: return PolygonHitbox.ASTEROID_7;
-            default: return PolygonHitbox.DEFAULT;
-        }
+        return i >= PolygonHitbox.ASTEROIDS.length ? new Rectangle(this.x, this.y, tex.getImageWidth(), tex.getImageHeight()).getPoints() : PolygonHitbox.ASTEROIDS[i];
     }
 
     private Vector2f getHitboxOffset(int i) {
-        switch(i) {
-            case 0: return new Vector2f(-1, 3);
-            case 1: return new Vector2f(1, -1);
-            case 2: return new Vector2f(-1, 1);
-            case 3: return new Vector2f(-2, -5);
-            case 4: return new Vector2f(-4, -4);
-            case 5: return new Vector2f(-1, 1);
-            case 6: return new Vector2f(4, -3);
-            case 7: return new Vector2f(0, 5);
-            default: return new Vector2f(0, 0);
-        }
+        return i >= PolygonHitbox.ASTEROID_OFFSETS.length ? new Vector2f(0, 0) : PolygonHitbox.ASTEROID_OFFSETS[i];
     }
 
     public int getYDirection() {

@@ -126,6 +126,10 @@ public class Sprite6TitleAsteroid implements TitleSprite {
         return this.bounds;
     }
 
+    public void setBounds(Shape b) {
+        this.bounds = b;
+    }
+
     public Vector2f getLocation() {
         return new Vector2f(this.x, this.y);
     }
@@ -135,25 +139,10 @@ public class Sprite6TitleAsteroid implements TitleSprite {
     }
 
     private float[] getHitbox(int i) {
-        switch(i) {
-            case 0: return PolygonHitbox.ASTEROID_0;
-            case 1: return PolygonHitbox.ASTEROID_1;
-            case 2: return PolygonHitbox.ASTEROID_2;
-            case 3: return PolygonHitbox.ASTEROID_3;
-            case 4: return PolygonHitbox.ASTEROID_4;
-            case 5: return PolygonHitbox.ASTEROID_5;
-            default: return PolygonHitbox.DEFAULT;
-        }
+        return i >= PolygonHitbox.ASTEROIDS.length ? new Rectangle(this.x, this.y, tex.getImageWidth(), tex.getImageHeight()).getPoints() : PolygonHitbox.ASTEROIDS[i];
     }
 
     private Vector2f getHitboxOffset(int i) {
-        switch(i) {
-            case 0: return new Vector2f(-1, 3);
-            case 1: return new Vector2f(1, -1);
-            case 2: return new Vector2f(-1, 1);
-            case 3: return new Vector2f(-2, -5);
-            case 4: return new Vector2f(-4, -4);
-            default: return new Vector2f(0, 0);
-        }
+        return i >= PolygonHitbox.ASTEROID_OFFSETS.length ? new Vector2f(0, 0) : PolygonHitbox.ASTEROID_OFFSETS[i];
     }
 }

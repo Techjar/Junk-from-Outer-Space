@@ -50,12 +50,13 @@ public class SpaceJunk {
     private static int DISPLAY_WIDTH, DISPLAY_HEIGHT, DIFFICULTY;
     private static boolean FULLSCREEN;
     private static DisplayMode DISPLAY_MODE;
+    private static final String GAME_TITLE = "Junk from Outer Space";
     private int score, deaths, startCountdown, prevStartCountdown, fpsDisp, curLevel, nextRand, nextPowerupRand, lastMouseX, lastMouseY, pauseScreen, titleScreen;
     private long lastAsteroid, lastPowerup, fpsDispTime, time, startTime, lastFrame, highScore, fpsLastFrame, fps, astCollTime;
     private float titleFade;
     private boolean mouseClicked, runGame, renderCollision, prevMusicPlaying, firstPowerup, onTitle, astColl, asteroidCollision;;
     private String pauseHover, titleHover;
-    private UnicodeFont batmfa20, batmfa37, batmfa60, nighb100, COPRGTB40;
+    private UnicodeFont batmfa20, batmfa37, batmfa60, nighb100, COPRGTB45;
     private SoundManager soundManager;
     private Random random = new Random();
     private Texture bg;
@@ -68,7 +69,7 @@ public class SpaceJunk {
     private List<PowerupSprite> powerups;
     private List<Particle> particles;
     private TickCounter tc, startTc;
-
+    
 
     /**
      * Creates a new SpaceJunk game instance.
@@ -97,6 +98,9 @@ public class SpaceJunk {
         soundManager.setMusicVolume(musicVolume);
         soundManager.setSoundVolume(soundVolume);
 
+        // Sound poll thread
+        new SoundPollThread(soundManager).start();
+
         // Store these
         DIFFICULTY = difficulty;
         DISPLAY_WIDTH = mode.getWidth();
@@ -110,7 +114,7 @@ public class SpaceJunk {
         onTitle = true; mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false; firstPowerup = true; prevStartCountdown = 0;
         sprites = new ArrayList<Sprite>(); titleSprites = new ArrayList<TitleSprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
         powerups = new ArrayList<PowerupSprite>(); particles = new ArrayList<Particle>();
-        atex = new Texture[8]; highScore = 0; fps = 0; fpsDisp = 0; fpsDispTime = 0; fpsLastFrame = 0; astColl = true; astCollTime = 0;
+        highScore = 0; fps = 0; fpsDisp = 0; fpsDispTime = 0; fpsLastFrame = 0; astColl = true; astCollTime = 0;
         asteroidCollision = true; // Should asteroids bounce off eachother? WARNING: MAY LAG ON HIGH DIFFICULTY/LEVEL!!!
         tc = new TickCounter(60); startTc = new TickCounter(60);
 
@@ -118,7 +122,7 @@ public class SpaceJunk {
         Display.setDisplayMode(mode);
         Display.setFullscreen(fullscreen);
         Display.setVSyncEnabled(vSync);
-        Display.setTitle("Junk from Outer Space");
+        Display.setTitle(GAME_TITLE);
 
         // Setup icons
         ByteBuffer[] icons = new ByteBuffer[4];
@@ -146,12 +150,12 @@ public class SpaceJunk {
         batmfa37.getEffects().add(new OutlineEffect(1, java.awt.Color.GRAY));
         batmfa37.loadGlyphs();
 
-        COPRGTB40 = new UnicodeFont("resources/fonts/COPRGTB.ttf", 40, false, false);
-        COPRGTB40.addAsciiGlyphs();
-        COPRGTB40.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
-        COPRGTB40.getEffects().add(new GradientEffect(java.awt.Color.LIGHT_GRAY, java.awt.Color.BLACK, 1));
-        COPRGTB40.getEffects().add(new OutlineEffect(1, java.awt.Color.GRAY));
-        COPRGTB40.loadGlyphs();
+        COPRGTB45 = new UnicodeFont("resources/fonts/COPRGTB.ttf", 45, false, false);
+        COPRGTB45.addAsciiGlyphs();
+        COPRGTB45.getEffects().add(new ColorEffect(java.awt.Color.WHITE));
+        COPRGTB45.getEffects().add(new GradientEffect(java.awt.Color.LIGHT_GRAY, java.awt.Color.BLACK, 1));
+        COPRGTB45.getEffects().add(new OutlineEffect(1, java.awt.Color.GRAY));
+        COPRGTB45.loadGlyphs();
 
         batmfa60 = new UnicodeFont("resources/fonts/batmfa_.ttf", 60, false, false);
         batmfa60.addAsciiGlyphs();
@@ -190,9 +194,6 @@ public class SpaceJunk {
         titleMenu.add(new Title2StartGame(batmfa20, Color.white, soundManager, this));
         titleMenu.add(new Title0Options(batmfa20, Color.white, soundManager, this));
         titleMenu.add(new Title1Quit(batmfa20, Color.white, soundManager, this));
-
-        // MEGA IMPORTANT SHUTDOWN HOOK!!!!!
-        Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
     }
 
     /**
@@ -200,11 +201,12 @@ public class SpaceJunk {
      */
     public void create() {
         // Init
-        this.init();
+        //this.init();
 
         // OpenGL
         this.initGL();
         this.resizeGL();
+        this.init();
     }
 
     /**
@@ -248,18 +250,15 @@ public class SpaceJunk {
     private void init() {
         try {
             bg = TextureLoader.getTexture("JPG", new FileInputStream("resources/textures/bg.jpg"), GL_LINEAR);
-            atex[0] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid0.png"), GL_LINEAR);
-            atex[1] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid1.png"), GL_LINEAR);
-            atex[2] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid2.png"), GL_LINEAR);
-            atex[3] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid3.png"), GL_LINEAR);
-            atex[4] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid4.png"), GL_LINEAR);
-            atex[5] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid5.png"), GL_LINEAR);
-            atex[6] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid6.png"), GL_LINEAR);
-            atex[7] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid7.png"), GL_LINEAR);
-            soundManager.playMusic("title", true);
+            Display.setTitle(GAME_TITLE + " (Loading...)"); this.renderLoading();
+            int i = 0; for(i = 0; new File("resources/textures/asteroid" + i + ".png").exists(); i++){} atex = new Texture[i];
+            for(int j = 0; j < i; j++) atex[j] = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/asteroid" + j + ".png"), GL_LINEAR);
             startTime = tc.getTickMillis();
             highScore = Long.parseLong(ConfigManager.getProperty("high-score").toString());
             this.generateTitleAsteroids();
+            soundManager.playMusic("title", true);
+            Runtime.getRuntime().addShutdownHook(new ShutdownThread(this)); // MEGA IMPORTANT SHUTDOWN HOOK!!!!!
+            Display.setTitle(GAME_TITLE);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -388,7 +387,10 @@ public class SpaceJunk {
         if(tc.getTickMillis() - astCollTime >= 1000 && !astColl) astColl = true;
         if(!SoundStore.get().isMusicPlaying() && !prevMusicPlaying) {
             if(onTitle) soundManager.playMusic("title", true);
-            else if(runGame) soundManager.playRandomMusic();
+            else if(runGame) {
+                if(sprites.size() > 0 && sprites.get(0) instanceof Sprite0Ship && ((Sprite0Ship)sprites.get(0)).isInvincible()) soundManager.playMusic("invincible", true);
+                else soundManager.playRandomMusic();
+            }
         }
         prevMusicPlaying = SoundStore.get().isMusicPlaying();
         if(Mouse.isGrabbed() && !onTitle && runGame) {
@@ -440,7 +442,7 @@ public class SpaceJunk {
             }
         }
         curLevel = time < 60 ? ((int)time / 30) + 1 : ((int)time / 60) + 2;
-        soundManager.poll((int)(tc.getTickMillis() - lastFrame));
+        //soundManager.poll((int)(tc.getTickMillis() - lastFrame));
     }
 
     private void drawBg() {
@@ -564,32 +566,13 @@ public class SpaceJunk {
 	glPopMatrix();
     }
 
-    private void generateTitleAsteroids() {
-        DisplayMode dm = Display.getDisplayMode(); TitleSprite sprite = null, tsprite = null; Texture tex = null, ttex = null; Shape temphit = null;
-        int count = (dm.getWidth() * dm.getHeight()) / 20000; int texnum = 0;
-        for(int i = 0; i < count; i++) {
-            texnum = random.nextInt(atex.length);
-            sprite = new Sprite6TitleAsteroid(sprites, particles, soundManager, random.nextInt(DISPLAY_WIDTH), random.nextInt(DISPLAY_HEIGHT), this, atex[texnum], texnum);
-            retry: if(true) {
-                sprite = new Sprite6TitleAsteroid(sprites, particles, soundManager, random.nextInt(DISPLAY_WIDTH), random.nextInt(DISPLAY_HEIGHT), this, atex[texnum], texnum);
-                lol: for(int j = 0; j < titleSprites.size(); j++) {
-                    tsprite = titleSprites.get(j); tex = sprite.getTexture(); ttex = tsprite.getTexture();
-                    temphit = new Rectangle(sprite.getX() - (tex.getImageWidth() / 2), sprite.getY() - (tex.getImageHeight() / 2), tex.getImageWidth(), tex.getImageHeight());
-                    if(temphit.intersects(new Rectangle(tsprite.getX() - (ttex.getImageWidth() / 2), tsprite.getY() - (ttex.getImageHeight() / 2), ttex.getImageWidth(), ttex.getImageHeight()))) break retry;
-                    if(!new Polygon(new Rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT).getPoints()).contains(new Polygon(temphit.getPoints()))) break retry;
-                }
-                titleSprites.add(sprite);
-            }
-        }
-    }
-
     private void generateAsteroid() {
         if(tc.getTickMillis() - lastAsteroid >= nextRand) {
             int texnum = random.nextInt(atex.length);
             Sprite2Asteroid newSprite = new Sprite2Asteroid(sprites, particles, soundManager, DISPLAY_WIDTH + 64, random.nextInt(DISPLAY_HEIGHT), this, atex[texnum], texnum);
             sprites.add(newSprite); asteroids.add(newSprite);
             lastAsteroid = tc.getTickMillis();
-            nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
+            nextRand = (int)((float)random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 4F, 1, Float.MAX_VALUE));
         }
     }
 
@@ -602,7 +585,7 @@ public class SpaceJunk {
             }
             else firstPowerup = false;
             lastPowerup = tc.getTickMillis();
-            nextPowerupRand = random.nextInt(MathHelper.clamp(500000 / DIFFICULTY, 1, 500000));
+            nextPowerupRand = (int)((float)random.nextInt(MathHelper.clamp(20000 * DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 4F, 1, Float.MAX_VALUE));
         }
     }
 
@@ -611,7 +594,7 @@ public class SpaceJunk {
         next: for(int i = 0; i < asteroids.size(); i++) {
             Sprite2Asteroid asteroid = asteroids.get(i);
             Shape b1 = sprite.getBounds(); Shape b2 = asteroid.getBounds();
-            if(new Vector2f(b1.getCenterX(), b1.getCenterY()).distance(new Vector2f(b2.getCenterX(), b2.getCenterY())) > (float)(Math.max(b1.getWidth(), b1.getHeight()) + Math.max(b2.getWidth(), b2.getHeight())) / 2) continue next;
+            if(new Vector2f(b1.getCenterX(), b1.getCenterY()).distance(new Vector2f(b2.getCenterX(), b2.getCenterY())) > (float)(b1.getBoundingCircleRadius() + b2.getBoundingCircleRadius())) continue next;
             if(sprite instanceof Sprite0Ship) {
                 if(!((Sprite0Ship)sprite).isHit() && !((Sprite0Ship)sprite).isInvincible() && b1.intersects(b2)) {
                     deaths++;
@@ -730,8 +713,8 @@ public class SpaceJunk {
 
     public void setDifficulty(int difficulty) {
         DIFFICULTY = difficulty;
-        nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
-        nextPowerupRand = random.nextInt(MathHelper.clamp(500000 / DIFFICULTY, 1, 500000));
+        nextRand = (int)((float)random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 4F, 1, Float.MAX_VALUE));
+        nextPowerupRand = (int)((float)random.nextInt(MathHelper.clamp(20000 * DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 4F, 1, Float.MAX_VALUE));
     }
 
     public void changeDisplayMode(DisplayMode mode, boolean fullscreen) {
@@ -748,10 +731,12 @@ public class SpaceJunk {
             DISPLAY_HEIGHT = Display.getDisplayMode().getHeight();
             FULLSCREEN = fullscreen;
             resizeGL();
+            Display.setTitle(GAME_TITLE + " (Loading...)"); this.renderLoading();
             if(onTitle) {
                 titleSprites.clear();
                 this.generateTitleAsteroids();
             }
+            Display.setTitle(GAME_TITLE);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -778,7 +763,7 @@ public class SpaceJunk {
                 sprite.render();
             }
         }
-        COPRGTB40.drawString((DISPLAY_WIDTH - COPRGTB40.getWidth("Junk from Outer Space")) / 2, 25, "Junk from Outer Space", Color.green);
+        COPRGTB45.drawString((DISPLAY_WIDTH - COPRGTB45.getWidth("Junk from Outer Space")) / 2, 25, "Junk from Outer Space", Color.green);
         batmfa37.drawString((DISPLAY_WIDTH - batmfa37.getWidth("High Score: " + highScore)) / 2, (DISPLAY_HEIGHT - batmfa37.getHeight("High Score: " + highScore)) - 3, "High Score: " + highScore, Color.cyan);
 
         Title title = null;
@@ -842,18 +827,73 @@ public class SpaceJunk {
         this.onTitle = onTitle;
         Mouse.setGrabbed(!onTitle);
         if(onTitle) {
+            Display.setTitle(GAME_TITLE + " (Loading...)"); this.renderLoading();
+            soundManager.stopMusic();
             ConfigManager.setProperty("high-score", this.highScore);
-            soundManager.playMusic("title", true);
-            titleSprites.clear(); runGame = false;
+            titleSprites.clear(); runGame = false; titleFade = 0;
             this.generateTitleAsteroids();
+            soundManager.playMusic("title", true);
+            Display.setTitle(GAME_TITLE);
         }
         else {
+            Display.setTitle(GAME_TITLE + " (Loading...)"); this.renderLoading();
             soundManager.stopMusic(); runGame = false; startTc.setTicks(0);
             sprites.clear(); asteroids.clear(); powerups.clear(); particles.clear();
             this.setScore(0); this.setDeaths(0); tc.setTicks(0); prevStartCountdown = 4;
-            nextRand = random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, 10000)) / curLevel;
-            nextPowerupRand = random.nextInt(MathHelper.clamp(500000 / DIFFICULTY, 1, 500000));
+            nextRand = (int)((float)random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 4F, 1, Float.MAX_VALUE));
+            nextPowerupRand = (int)((float)random.nextInt(MathHelper.clamp(20000 * DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 4F, 1, Float.MAX_VALUE));
             sprites.add(new Sprite0Ship(sprites, particles, 48, DISPLAY_HEIGHT / 2, soundManager, this));
+            Display.setTitle(GAME_TITLE);
+        }
+    }
+
+    private void generateTitleAsteroids() {
+        new TitleAsteroidGenerator(this).generate();
+    }
+
+    private void renderLoading() {
+        glClear(GL_COLOR_BUFFER_BIT);
+        glLoadIdentity();
+        drawBg();
+        nighb100.drawString((DISPLAY_WIDTH - nighb100.getWidth("Loading...")) / 2, (DISPLAY_HEIGHT - nighb100.getHeight("Loading...")) / 2, "Loading...", Color.cyan);
+        Display.update();
+    }
+
+    private class TitleAsteroidGenerator {
+        private SpaceJunk sj;
+
+
+        public TitleAsteroidGenerator(SpaceJunk sj) {
+            this.sj = sj;
+        }
+
+        private void generate() {
+            DisplayMode dm = Display.getDisplayMode(); int texnum = 0; boolean ret = false;
+            int count = (dm.getWidth() * dm.getHeight()) / 20000; int limit = 0, limit2 = 0;
+            for(limit2 = 0; titleSprites.size() < count && limit2 < 120; limit2++) {
+                sj.renderLoading(); texnum = random.nextInt(atex.length); ret = false;
+                for(limit = 0; !ret && limit < 10; limit++) ret = this.generate2(texnum);
+            }
+        }
+
+        private boolean generate2(int texnum) {
+            TitleSprite sprite = null, tsprite = null; Shape temphit = null, temphit2 = null, screenhit = null;
+            sprite = new Sprite6TitleAsteroid(sprites, particles, soundManager, random.nextInt(DISPLAY_WIDTH), random.nextInt(DISPLAY_HEIGHT), this.sj, atex[texnum], texnum);
+            for(int j = 0; j < titleSprites.size(); j++) {
+                tsprite = titleSprites.get(j);
+                temphit = new Circle(sprite.getX(), sprite.getY(), sprite.getBounds().getBoundingCircleRadius());
+                temphit2 = new Circle(tsprite.getX(), tsprite.getY(), tsprite.getBounds().getBoundingCircleRadius());
+                screenhit = new Rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                if(temphit.intersects(temphit2)) return false;
+                if(!screenhit.contains(temphit)) return false;
+            }
+            if(titleSprites.size() < 1) {
+                temphit = new Circle(sprite.getX(), sprite.getY(), sprite.getBounds().getBoundingCircleRadius());
+                screenhit = new Rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                if(!screenhit.contains(temphit)) return false;
+            }
+            titleSprites.add(sprite);
+            return true;
         }
     }
 }

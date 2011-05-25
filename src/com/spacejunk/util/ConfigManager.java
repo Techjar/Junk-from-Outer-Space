@@ -115,10 +115,10 @@ public final class ConfigManager {
                 if(modes[i].getWidth() * modes[i].getHeight() == 800 * 600) defMode = modes[i];
             }
             for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
-                if(modes[i].getWidth() * modes[i].getHeight() == 640 * 480) defMode = modes[i];
+                if(modes[i].getWidth() * modes[i].getHeight() == 1024 * 768) defMode = modes[i];
             }
             for(int i = 0; i < modes.length && defMode == Display.getDesktopDisplayMode(); i++) {
-                if(modes[i].getWidth() * modes[i].getHeight() == 1024 * 768) defMode = modes[i];
+                if(modes[i].getWidth() * modes[i].getHeight() == 640 * 480) defMode = modes[i];
             }
 
             DumperOptions dumper = new DumperOptions();

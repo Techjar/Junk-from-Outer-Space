@@ -6,6 +6,7 @@
 
 package com.spacejunk.sprites;
 
+import org.newdawn.slick.geom.Shape;
 import org.newdawn.slick.opengl.Texture;
 
 /**
@@ -14,4 +15,5 @@ import org.newdawn.slick.opengl.Texture;
  */
 public interface TitleSprite extends Sprite {
     Texture getTexture();
+    void setBounds(Shape bounds);
 }
