@@ -7,6 +7,7 @@
 package com.spacejunk.particles;
 
 import java.io.IOException;
+import org.newdawn.slick.geom.Vector2f;
 import org.newdawn.slick.particles.*;
 import com.spacejunk.SpaceJunk;
 import com.spacejunk.util.TickCounter;
@@ -68,5 +69,10 @@ public class Particle0Explosion implements Particle {
 
     public boolean renderFirst() {
         return false;
+    }
+
+    public void setLocation(Vector2f location) {
+        this.x = location.getX();
+        this.y = location.getY();
     }
 }

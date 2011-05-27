@@ -9,6 +9,7 @@ package com.spacejunk.particles;
 import java.io.IOException;
 import org.newdawn.slick.particles.*;
 import com.spacejunk.SpaceJunk;
+import org.newdawn.slick.geom.Vector2f;
 
 /**
  * 
@@ -71,5 +72,10 @@ public class Particle1Jet implements Particle {
 
     public boolean renderFirst() {
         return this.type == 0;
+    }
+
+    public void setLocation(Vector2f location) {
+        this.x = location.getX();
+        this.y = location.getY();
     }
 }

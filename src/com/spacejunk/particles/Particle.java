@@ -6,6 +6,8 @@
 
 package com.spacejunk.particles;
 
+import org.newdawn.slick.geom.Vector2f;
+
 /**
  * 
  * @author Techjar
@@ -20,4 +22,5 @@ public interface Particle {
     void setX(float x);
     void setY(float y);
     boolean renderFirst();
+    void setLocation(Vector2f location);
 }

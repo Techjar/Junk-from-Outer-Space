@@ -28,8 +28,9 @@ public final class PolygonHitbox {
     public static final float[] ASTEROID_5 = {63, 2, 75, 3, 77, 17, 102, 35, 104, 43, 117, 50, 114, 79, 109, 85, 107, 97, 104, 101, 73, 105, 66, 120, 57, 126, 47, 121, 26, 116, 22, 90, 16, 86, 8, 68, 25, 41, 25, 38, 22, 33, 23, 16, 51, 11};
     public static final float[] ASTEROID_6 = {68, 8, 99, 15, 101, 20, 120, 31, 125, 48, 119, 85, 119, 94, 96, 105, 87, 119, 72, 117, 48, 104, 53, 89, 38, 74, 16, 81, 3, 68, 3, 62, 33, 39, 34, 34, 60, 21, 64, 12};
     public static final float[] ASTEROID_7 = {79, 8, 131, 7, 148, 37, 205, 41, 226, 77, 249, 95, 248, 138, 254, 150, 244, 181, 197, 203, 179, 222, 129, 213, 119, 208, 88, 217, 57, 247, 8, 181, 18, 156, 8, 141, 1, 122, 44, 72, 50, 72};
-    public static final float[][] ASTEROIDS = {ASTEROID_0, ASTEROID_1, ASTEROID_2, ASTEROID_3, ASTEROID_4, ASTEROID_5, ASTEROID_6, ASTEROID_7};
-    public static final Vector2f[] ASTEROID_OFFSETS = {new Vector2f(-1, 3), new Vector2f(1, -1), new Vector2f(-1, 1), new Vector2f(-2, -5), new Vector2f(-4, -4), new Vector2f(-1, 1), new Vector2f(4, -3), new Vector2f(0, 5)};
+    public static final float[] ASTEROID_8 = {312, 6, 377, 8, 405, 108, 437, 121, 468, 116, 495, 123, 494, 201, 510, 261, 487, 291, 427, 306, 420, 385, 398, 419, 311, 397, 288, 397, 288, 495, 234, 502, 205, 475, 132, 505, 91, 416, 95, 404, 33, 331, 50, 289, 0, 228, 11, 192, 6, 175, 9, 137, 29, 131, 83, 60, 152, 54, 168, 33, 248, 44, 273, 39, 282, 27};
+    public static final float[][] ASTEROIDS = {ASTEROID_0, ASTEROID_1, ASTEROID_2, ASTEROID_3, ASTEROID_4, ASTEROID_5, ASTEROID_6, ASTEROID_7, ASTEROID_8};
+    public static final Vector2f[] ASTEROID_OFFSETS = {new Vector2f(-1, 3), new Vector2f(1, -1), new Vector2f(-1, 1), new Vector2f(-2, -5), new Vector2f(-4, -4), new Vector2f(-1, 1), new Vector2f(4, -3), new Vector2f(0, 5), new Vector2f(-6, -23)};
 
 
     // Useless constructor

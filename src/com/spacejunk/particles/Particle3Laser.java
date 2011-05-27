@@ -9,24 +9,23 @@ package com.spacejunk.particles;
 import java.io.IOException;
 import org.newdawn.slick.particles.*;
 import com.spacejunk.SpaceJunk;
-import com.spacejunk.util.TickCounter;
 import org.newdawn.slick.geom.Vector2f;
 
 /**
  * 
  * @author Techjar
  */
-public class Particle2Glow implements Particle {
+public class Particle3Laser implements Particle {
     private SpaceJunk sj;
     private ParticleSystem sys;
+    private int type;
     private float x, y;
-    private TickCounter tc;
 
 
-    public Particle2Glow(SpaceJunk sj, float x, float y, int type) throws IOException {
+    public Particle3Laser(SpaceJunk sj, float x, float y, int type) throws IOException {
         this.sj = sj;
-        this.tc = sj.getTickCounter();
-        this.sys = ParticleIO.loadConfiguredSystem("resources/particles/glow" + type + ".xml");
+        this.type = type;
+        this.sys = ParticleIO.loadConfiguredSystem("resources/particles/laser" + type + ".xml");
         this.x = x; this.y = y;
     }
 
@@ -62,8 +61,12 @@ public class Particle2Glow implements Particle {
         this.y = y;
     }
 
+    public int getType() {
+        return this.type;
+    }
+
     public boolean renderFirst() {
-        return true;
+        return false;
     }
 
     public void setLocation(Vector2f location) {

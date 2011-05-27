@@ -22,6 +22,7 @@ import com.spacejunk.util.MathHelper;
  */
 public class SoundManager {
     private int tracks;
+    private Object currentMusic;
     private Audio nullMusic, randMusic;
     private Map<String, Audio> soundEffects;
     private Random random = new Random();
@@ -29,6 +30,7 @@ public class SoundManager {
 
     public SoundManager() {
         try {
+            this.currentMusic = "";
             for(this.tracks = 0; new File("resources/music/" + this.tracks + ".ogg").exists(); this.tracks++){}
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
             this.initSoundList();
@@ -40,11 +42,13 @@ public class SoundManager {
     }
 
     public void poll(int delta) {
+        if(!SoundStore.get().isMusicPlaying() && this.currentMusic != "") this.currentMusic = "";
         SoundStore.get().poll(delta);
     }
 
     public void stopMusic() {
         nullMusic.playAsMusic(1, 1, false);
+        this.currentMusic = "";
     }
 
     public void playMusic(Object track) {
@@ -63,6 +67,7 @@ public class SoundManager {
         try {
             randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
             randMusic.playAsMusic(pitch, gain, loop);
+            this.currentMusic = track;
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -115,6 +120,10 @@ public class SoundManager {
         return this.randMusic;
     }
 
+    public Object getCurrentMusic() {
+        return this.currentMusic;
+    }
+
     private void initSoundList() throws java.io.FileNotFoundException, java.io.IOException {
         soundEffects = new HashMap<String, Audio>();
             soundEffects.put("ui.button.click", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ui/button/click.wav")));
@@ -125,6 +134,8 @@ public class SoundManager {
             soundEffects.put("ambient.explode.0", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/0.wav")));
             soundEffects.put("ambient.explode.1", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/1.wav")));
             soundEffects.put("ambient.explode.2", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/2.wav")));
+            soundEffects.put("ambient.explode.3", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/ambient/explode/3.wav")));
             soundEffects.put("weapon.rocket", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/weapon/rocket.wav")));
+            soundEffects.put("weapon.laser", AudioLoader.getAudio("WAV", new FileInputStream("resources/sounds/weapon/laser.wav")));
     }
 }

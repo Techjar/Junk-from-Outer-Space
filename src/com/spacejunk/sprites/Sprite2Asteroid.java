@@ -21,7 +21,7 @@ import com.spacejunk.particles.*;
  * 
  * @author Techjar
  */
-public class Sprite2Asteroid implements Sprite {
+public class Sprite2Asteroid implements HostileSprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
     private int id, hits, yDir, oldYDir, yTimes, yNextTime, rotSpeed, texnum, xSpeed, yTimesSmooth;
@@ -44,7 +44,7 @@ public class Sprite2Asteroid implements Sprite {
             this.rotDir = random.nextBoolean();
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
-            this.id = 2; this.x = x + tex.getImageWidth(); this.y = y; this.z = 0; this.hits = (int)(2F * ((float)tex.getImageWidth() / 64F)); this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
+            this.id = 2; this.x = x + tex.getImageWidth(); this.y = y; this.z = 0; this.hits = Math.round(2F * ((float)tex.getImageWidth() / 64F)); this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
             this.visible = true; this.flash = false; this.yTimesSmooth = Integer.MAX_VALUE; this.nextY = 1; this.oldYDir = 0;
             this.useFullPoly = true; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
             this.tex = tex;
@@ -86,7 +86,7 @@ public class Sprite2Asteroid implements Sprite {
                 catch(Exception e) {
                     e.printStackTrace();
                 }
-                sj.incScore(1);
+                sj.incScore(this.getPoints());
             }
         }
         if((tc.getTickMillis() - flashTime) >= 100 && this.flash) this.flash = false;
@@ -190,5 +190,9 @@ public class Sprite2Asteroid implements Sprite {
 
     public int getSpeed() {
         return this.xSpeed;
+    }
+
+    public int getPoints() {
+        return Math.round((float)tex.getImageWidth() / 64F);
     }
 }

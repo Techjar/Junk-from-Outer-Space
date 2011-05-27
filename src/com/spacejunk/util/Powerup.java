@@ -19,5 +19,5 @@ public final class Powerup {
     public static final String LASER = "LASER";
     public static final String NUKE = "NUKE";
     public static final String[] ALL_POWERUPS = {FASTSHOT, BIGSHOT, ROCKET, INVINCIBILITY, LASER, NUKE};
-    public static final int TOTAL_POWERUPS = ALL_POWERUPS.length - 3;
+    public static final int TOTAL_POWERUPS = ALL_POWERUPS.length;
 }
