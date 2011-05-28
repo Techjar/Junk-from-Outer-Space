@@ -70,8 +70,8 @@ public class Particle1Jet implements Particle {
         return this.shipJet;
     }
 
-    public boolean renderFirst() {
-        return this.type == 0;
+    public int getRenderLayer() {
+        return 1;
     }
 
     public void setLocation(Vector2f location) {

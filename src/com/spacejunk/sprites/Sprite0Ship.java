@@ -72,7 +72,7 @@ public class Sprite0Ship implements Sprite {
             this.guntex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/gunfire.png"), GL_LINEAR);
             this.rocketTex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/rocket.png"), GL_NEAREST);
             this.laserTex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/laser.png"), GL_NEAREST);
-            this.sm = sm; this.maxLaserPower = 300; this.laserPower = this.maxLaserPower; this.laserCharged = true;
+            this.sm = sm; this.maxLaserPower = 600; this.laserPower = this.maxLaserPower; this.laserCharged = true;
             this.jet = new Particle1Jet(sj, this.x - 26, this.y + 16, 0, true);
             this.randomColor = new Color(0, 0, 0); this.laserSound = -1;
             this.laser1 = new Vector2f(0, 0); this.laser2 = new Vector2f(0, 0);
@@ -104,7 +104,7 @@ public class Sprite0Ship implements Sprite {
     
     public void update() {
         this.fireLaser = false;
-        if(this.invincible) this.randomColor = new Color(random.nextFloat(), random.nextFloat(), random.nextFloat());
+        if(this.invincible) this.randomColor = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
         invFrameTime++;
         if(this.invincible) {
             if(invFrameTime >= 2) {
@@ -138,7 +138,7 @@ public class Sprite0Ship implements Sprite {
                         if(this.laserSound < 0) this.laserSound = sm.playSoundEffect("weapon.laser", true);
                     }
                     if(powerups.contains(Powerup.NUKE)) {
-                        sprites.add(new Sprite7Nuke(this.sj, this.sprites, this.particles, this.sm, this.x, this.y));
+                        sprites.add(new Sprite7Nuke(this.sj, this.sprites, this.particles, this.sm, this.x - 5, this.y));
                         sm.playSoundEffect("ship.powerup");
                         this.nukeShots++;
                     }
@@ -169,7 +169,7 @@ public class Sprite0Ship implements Sprite {
         }
         else if(!this.fireLaser && this.laserPower < this.maxLaserPower) {
             if(this.laserPower < 1) this.laserCharged = false;
-            this.laserPower = MathHelper.clamp(this.laserPower + 1, 0, this.maxLaserPower);
+            this.laserPower = MathHelper.clamp(this.laserPower + 2, 0, this.maxLaserPower);
         }
         else if(!this.fireLaser) {
             this.laserCharged = true;
@@ -394,8 +394,8 @@ public class Sprite0Ship implements Sprite {
 
     public void removePowerup(String powerup) {
         if(powerups.contains(powerup)) {
-            powerups.remove(powerup);
-            powerupLife.remove(powerup);
+            while(powerups.contains(powerup)) powerups.remove(powerup);
+            while(powerupLife.containsKey(powerup)) powerupLife.remove(powerup);
             if(powerup.equals(Powerup.INVINCIBILITY)) sm.stopMusic();
         }
     }

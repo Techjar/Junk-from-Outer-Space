@@ -28,7 +28,7 @@ public class Particle0Explosion implements Particle {
     public Particle0Explosion(SpaceJunk sj, float x, float y, int life, int type) throws IOException {
         this.sj = sj;
         this.tc = sj.getTickCounter();
-        this.sys = ParticleIO.loadConfiguredSystem("resources/particles/explosion" + type + ".xml");
+        this.sys = ParticleIO.loadConfiguredSystem("resources/particles/explosion" + type + ".xml", type == 3 ? 10000 : 2000);
         this.life = life;
         this.time = tc.getTickMillis();
         this.x = x; this.y = y;
@@ -67,8 +67,8 @@ public class Particle0Explosion implements Particle {
         this.y = y;
     }
 
-    public boolean renderFirst() {
-        return false;
+    public int getRenderLayer() {
+        return 1;
     }
 
     public void setLocation(Vector2f location) {

@@ -65,8 +65,8 @@ public class Particle3Laser implements Particle {
         return this.type;
     }
 
-    public boolean renderFirst() {
-        return false;
+    public int getRenderLayer() {
+        return 2;
     }
 
     public void setLocation(Vector2f location) {

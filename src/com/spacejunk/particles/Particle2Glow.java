@@ -62,8 +62,8 @@ public class Particle2Glow implements Particle {
         this.y = y;
     }
 
-    public boolean renderFirst() {
-        return true;
+    public int getRenderLayer() {
+        return 0;
     }
 
     public void setLocation(Vector2f location) {

@@ -291,7 +291,7 @@ public class SpaceJunk {
         glPushMatrix();
     }
 
-    private void processKeyboard() {
+    private void processKeyboard() throws JFOSException {
         while(Keyboard.next() && Keyboard.getEventKeyState()) {
             if(!onTitle && runGame) {
                 if(Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
@@ -322,10 +322,10 @@ public class SpaceJunk {
         }
     }
 
-    private void processMouse() {
+    private void processMouse() throws JFOSException {
     }
 
-    private void render() {
+    private void render() throws JFOSException {
         glClear(GL_COLOR_BUFFER_BIT);
         glLoadIdentity();
 
@@ -335,13 +335,13 @@ public class SpaceJunk {
                 Particle particle = null;
                 for(int i = 0; i < particles.size(); i++) {
                     particle = particles.get(i);
-                    if(particle.isVisible() && particle.renderFirst()) particle.render();
+                    if(particle.isVisible() && particle.getRenderLayer() == 0) particle.render();
                 }
 
                 Sprite sprite = null;
                 for(int i = 0; i < sprites.size(); i++) {
                     sprite = sprites.get(i);
-                    if(sprite.isVisible()) {
+                    if(sprite.isVisible() && !(sprite instanceof Sprite0Ship)) {
                         sprite.render();
                         if(renderCollision) ShapeRenderer.draw(sprite.getBounds());
                     }
@@ -349,7 +349,23 @@ public class SpaceJunk {
 
                 for(int i = 0; i < particles.size(); i++) {
                     particle = particles.get(i);
-                    if(particle.isVisible() && !particle.renderFirst()) particle.render();
+                    if(particle.isVisible() && particle.getRenderLayer() == 1) particle.render();
+                }
+
+                sprite = sprites.get(0);
+                if(sprite instanceof Sprite0Ship) {
+                    if(sprite.isVisible()) {
+                        sprite.render();
+                        if(renderCollision) ShapeRenderer.draw(sprite.getBounds());
+                    }
+                }
+                else {
+                    throw new JFOSException("Ship sprite not found at index 0 in sprites list.");
+                }
+
+                for(int i = 0; i < particles.size(); i++) {
+                    particle = particles.get(i);
+                    if(particle.isVisible() && particle.getRenderLayer() == 2) particle.render();
                 }
 
                 try {
@@ -378,7 +394,7 @@ public class SpaceJunk {
         if(titleFade < 1) drawTitleFade();
     }
 
-    private void update() {
+    private void update() throws JFOSException {
         if(System.currentTimeMillis() - fpsDispTime >= 100) {
             fpsDisp = (int)fps;
             fpsDispTime = System.currentTimeMillis();
