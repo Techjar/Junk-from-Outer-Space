@@ -120,6 +120,7 @@ public class SpaceJunk {
 
         // Display
         Display.setDisplayMode(mode);
+
         Display.setFullscreen(fullscreen);
         Display.setVSyncEnabled(vSync);
         Display.setTitle(GAME_TITLE);
@@ -940,7 +941,7 @@ public class SpaceJunk {
 
         private void generate() {
             DisplayMode dm = Display.getDisplayMode(); int texnum = 0; boolean ret = false;
-            int count = (dm.getWidth() * dm.getHeight()) / 20000; int limit = 0, limit2 = 0, theLimit = 200;
+            int count = (dm.getWidth() * dm.getHeight()) / 20000; int limit = 0, limit2 = 0, theLimit = count + 100;
             for(limit2 = 0; titleSprites.size() < count && limit2 < theLimit; limit2++) {
                 sj.renderLoading(limit2 + 1 < theLimit ? (float)titleSprites.size() / (float)count : 1.0F);
                 texnum = random.nextInt(atex.length); ret = false;

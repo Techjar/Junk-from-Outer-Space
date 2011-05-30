@@ -33,11 +33,11 @@ public class Main {
             if(USE_LAUNCHER) {
                 LauncherGUI launcher = null;
                 try {
-                    if(args.length < 1) launcher = new LauncherGUI("Junk from Outer Space Launcher", false);
-                    else launcher = new LauncherGUI("Junk from Outer Space Launcher", args[0].equalsIgnoreCase("render-collision"));
+                    launcher = new LauncherGUI("Junk from Outer Space Launcher", args.length < 1 ? false : args[0].equalsIgnoreCase("render-collision"));
                 }
                 catch(Exception e) {
                     e.printStackTrace();
+                    if(launcher != null) launcher.dispose();
                     System.exit(0);
                 }
             }

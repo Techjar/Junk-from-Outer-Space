@@ -24,7 +24,7 @@ import com.spacejunk.particles.*;
 public class Sprite2Asteroid implements HostileSprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, hits, yDir, oldYDir, yTimes, yNextTime, rotSpeed, texnum, xSpeed, yTimesSmooth;
+    private int id, hits, yDir, oldYDir, yTimes, yNextTime, rotSpeed, texnum, xSpeed, yTimesSmooth, points;
     private float x, y, z, nextY;
     private long flashTime;
     private boolean visible, rotDir, flash, useFullPoly;
@@ -44,9 +44,9 @@ public class Sprite2Asteroid implements HostileSprite {
             this.rotDir = random.nextBoolean();
             this.rotSpeed = random.nextInt(5) + 1;
             this.sprites = sprites; this.particles = particles;
-            this.id = 2; this.x = x + tex.getImageWidth(); this.y = y; this.z = 0; this.hits = Math.round(2F * ((float)tex.getImageWidth() / 64F)); this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
+            this.id = 2; this.x = x + tex.getImageWidth(); this.y = y; this.z = 0; this.hits = this.points = Math.round((float)(tex.getImageWidth() * tex.getImageHeight()) / (64F * 64F)); this.yTimes = 0; this.yNextTime = 0; this.yDir = random.nextInt(5) - 2;
             this.visible = true; this.flash = false; this.yTimesSmooth = Integer.MAX_VALUE; this.nextY = 1; this.oldYDir = 0;
-            this.useFullPoly = true; // Should we use full polygonal hitboxes? (WARNING: VERY LAGGY!!!)
+            this.useFullPoly = true; // Should we use full polygonal hitboxes? (WARNING: MORE CPU USAGE!)
             this.tex = tex;
             this.texnum = texnum;
             this.xSpeed = random.nextInt(4) + 1;
@@ -76,11 +76,12 @@ public class Sprite2Asteroid implements HostileSprite {
             yNextTime = (yDir == 0 ? random.nextInt(60) : MathHelper.clamp(random.nextInt(300), 60, 300));
             yTimes = 0; yTimesSmooth = 0;
         }
-        if(this.x + tex.getImageWidth() <= 0 || this.hits <= 0) {
+        if(this.x + Math.max(tex.getImageWidth(), tex.getImageHeight()) <= 0 || this.hits <= 0) {
             this.setVisible(false);
             if(this.hits <= 0) {
                 try {
-                    particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, tex.getImageWidth() > 128 ? 2 : 1));
+                    int expType = tex.getImageWidth() * tex.getImageHeight() > 512 * 512 ? 3 : (tex.getImageWidth() * tex.getImageHeight() > 128 * 128 ? 2 : 1);
+                    particles.add(new Particle0Explosion(sj, this.x, this.y, 1500, expType));
                     sm.playSoundEffect("ambient.explode.1", false);
                 }
                 catch(Exception e) {
