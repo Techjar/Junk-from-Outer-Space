@@ -41,8 +41,7 @@ public class Sprite0Ship implements Sprite {
     private long rocketShots, nukeShots, laserPower, maxLaserPower, laserTime, laserForTime;
     private boolean visible, hit, invincible, invState, respawning, fireLaser, laserCharged;
     private Vector2f laser1, laser2;
-    private List<String> powerups;
-    private Map<String, Long> powerupTime, powerupLife;
+    private Map<String, Long> powerupTime, powerups;
     private Texture tex, guntex, rocketTex, laserTex;
     private SoundManager sm;
     private SpaceJunk sj;
@@ -66,8 +65,7 @@ public class Sprite0Ship implements Sprite {
             this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
             this.rocketShots = 0; this.fireLaser = false; this.nukeShots = 0;
             this.visible = true; this.hit = false; this.invincible = false; this.invState = true; this.respawning = false;
-            this.powerups = new ArrayList<String>();
-            this.powerupTime = new HashMap<String, Long>(); this.powerupLife = new HashMap<String, Long>();
+            this.powerupTime = new HashMap<String, Long>(); this.powerups = new HashMap<String, Long>();
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/ship.png"), GL_NEAREST);
             this.guntex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/gunfire.png"), GL_LINEAR);
             this.rocketTex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/rocket.png"), GL_NEAREST);
@@ -128,26 +126,26 @@ public class Sprite0Ship implements Sprite {
             jet.setX(this.x - 26); jet.setY(this.y + 16);
             if(!this.respawning) {
                 if(Mouse.isButtonDown(1) && !powerups.isEmpty()) {
-                    if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.contains(Powerup.ROCKET)) {
+                    if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.containsKey(Powerup.ROCKET)) {
                         powerupTime.put(Sprite3Rocket.KEY_NAME, tc.getTickMillis());
                         sprites.add(new Sprite3Rocket(this.sj, sprites, particles, sm, this.x - 7, this.y + 8, this.rocketTex));
                         this.rocketShots++;
                     }
-                    if(powerups.contains(Powerup.LASER) && this.laserPower > 0 && this.laserCharged) {
+                    if(powerups.containsKey(Powerup.LASER) && this.laserPower > 0 && this.laserCharged) {
                         this.fireLaser = true;
                         if(this.laserSound < 0) this.laserSound = sm.playSoundEffect("weapon.laser", true);
                     }
-                    if(powerups.contains(Powerup.NUKE)) {
+                    if(powerups.containsKey(Powerup.NUKE)) {
                         sprites.add(new Sprite7Nuke(this.sj, this.sprites, this.particles, this.sm, this.x - 5, this.y));
                         sm.playSoundEffect("ship.powerup");
                         this.nukeShots++;
                     }
                 }
                 else if(Mouse.isButtonDown(0)) {
-                    if((powerups.contains(Powerup.FASTSHOT) && tc.getTickMillis() - lastFire >= 40) || tc.getTickMillis() - lastFire >= 200) {
+                    if((powerups.containsKey(Powerup.FASTSHOT) && tc.getTickMillis() - lastFire >= 40) || tc.getTickMillis() - lastFire >= 200) {
                         lastFire = tc.getTickMillis();
-                        sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x - 16, this.y - 3, this.guntex, powerups.contains(Powerup.BIGSHOT)));
-                        sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x - 16, this.y + 19, this.guntex, powerups.contains(Powerup.BIGSHOT)));
+                        sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x - 16, this.y - 3, this.guntex, powerups.containsKey(Powerup.BIGSHOT)));
+                        sprites.add(new Sprite1Gunfire(this.sj, sprites, particles, sm, this.x - 16, this.y + 19, this.guntex, powerups.containsKey(Powerup.BIGSHOT)));
                         sm.playSoundEffect("ship.gunfire");
                     }
                 }
@@ -188,7 +186,7 @@ public class Sprite0Ship implements Sprite {
             processLaser((int)this.x - 11, (int)this.y + 3, 1); laser1p.setLocation(laser1);
             processLaser((int)this.x - 11, (int)this.y + 24, 2); laser2p.setLocation(laser2);
         }
-        if(powerups.contains(Powerup.LASER)) this.drawProgressBar(dm.getWidth() - 105, dm.getHeight() - 15, 100, 10, (float)this.laserPower / (float)this.maxLaserPower, new Color(1F - ((float)this.laserPower / (float)this.maxLaserPower), (float)this.laserPower / (float)this.maxLaserPower, 0));
+        if(powerups.containsKey(Powerup.LASER)) this.drawProgressBar(dm.getWidth() - 105, dm.getHeight() - 15, 100, 10, (float)this.laserPower / (float)this.maxLaserPower, new Color(1F - ((float)this.laserPower / (float)this.maxLaserPower), (float)this.laserPower / (float)this.maxLaserPower, 0));
 
         if(this.visible) {
             // store the current model matrix
@@ -219,8 +217,8 @@ public class Sprite0Ship implements Sprite {
 
         glPushMatrix();
         int pos = 18; long ptime = 0, pstime = 0, plife = 0;
-        if(powerups.contains(Powerup.ROCKET) && powerupLife.containsKey(Powerup.ROCKET)) {
-            plife = powerupLife.containsKey(Powerup.ROCKET) ? powerupLife.get(Powerup.ROCKET) : 0;
+        if(powerups.containsKey(Powerup.ROCKET)) {
+            plife = powerups.containsKey(Powerup.ROCKET) ? powerups.get(Powerup.ROCKET) : Sprite3Rocket.POWERUP_LIFE;
             ptime = this.rocketShots - plife;
             if(ptime >= Sprite3Rocket.POWERUP_LIFE) {
                 this.removePowerup(Powerup.ROCKET);
@@ -233,8 +231,8 @@ public class Sprite0Ship implements Sprite {
         }
         pos += 18;
 
-        if(powerups.contains(Powerup.FASTSHOT) && powerupLife.containsKey(Powerup.FASTSHOT)) {
-            plife = powerupLife.containsKey(Powerup.FASTSHOT) ? powerupLife.get(Powerup.FASTSHOT) : 0;
+        if(powerups.containsKey(Powerup.FASTSHOT)) {
+            plife = powerups.containsKey(Powerup.FASTSHOT) ? powerups.get(Powerup.FASTSHOT) : 0;
             ptime = tc.getTickMillis() - plife;
             if(ptime >= 20000) {
                 this.removePowerup(Powerup.FASTSHOT);
@@ -247,8 +245,8 @@ public class Sprite0Ship implements Sprite {
         }
         pos += 18;
 
-        if(powerups.contains(Powerup.BIGSHOT) && powerupLife.containsKey(Powerup.BIGSHOT)) {
-            plife = powerupLife.containsKey(Powerup.BIGSHOT) ? powerupLife.get(Powerup.BIGSHOT) : 0;
+        if(powerups.containsKey(Powerup.BIGSHOT)) {
+            plife = powerups.containsKey(Powerup.BIGSHOT) ? powerups.get(Powerup.BIGSHOT) : 0;
             ptime = tc.getTickMillis() - plife;
             if(ptime >= Sprite1Gunfire.POWERUP_LIFE) {
                 this.removePowerup(Powerup.BIGSHOT);
@@ -261,7 +259,7 @@ public class Sprite0Ship implements Sprite {
         }
         pos += 18;
 
-        if(powerups.contains(Powerup.INVINCIBILITY) && powerupLife.containsKey(Powerup.INVINCIBILITY)) {
+        if(powerups.containsKey(Powerup.INVINCIBILITY)) {
             ptime = tc.getTickMillis() - invTime;
             if(ptime >= invForTime) {
                 this.removePowerup(Powerup.INVINCIBILITY);
@@ -274,7 +272,7 @@ public class Sprite0Ship implements Sprite {
         }
         pos += 18;
 
-        if(powerups.contains(Powerup.LASER) && powerupLife.containsKey(Powerup.LASER)) {
+        if(powerups.containsKey(Powerup.LASER)) {
             ptime = tc.getTickMillis() - this.laserTime;
             if(ptime >= this.laserForTime) {
                 this.removePowerup(Powerup.LASER);
@@ -287,8 +285,8 @@ public class Sprite0Ship implements Sprite {
         }
         pos += 18;
 
-        if(powerups.contains(Powerup.NUKE) && powerupLife.containsKey(Powerup.NUKE)) {
-            plife = powerupLife.containsKey(Powerup.NUKE) ? powerupLife.get(Powerup.NUKE) : 0;
+        if(powerups.containsKey(Powerup.NUKE)) {
+            plife = powerups.containsKey(Powerup.NUKE) ? powerups.get(Powerup.NUKE) : Sprite7Nuke.POWERUP_LIFE;
             ptime = this.nukeShots - plife;
             if(ptime >= Sprite7Nuke.POWERUP_LIFE) {
                 this.removePowerup(Powerup.NUKE);
@@ -335,7 +333,6 @@ public class Sprite0Ship implements Sprite {
         try {
             particles.add(new Particle0Explosion(sj, this.x - 16, this.y + 16, 1500, 0));
             powerups.clear();
-            powerupLife.clear();
             sm.playSoundEffect("ambient.explode.0", false);
         }
         catch(Exception e) {
@@ -372,9 +369,9 @@ public class Sprite0Ship implements Sprite {
 
     public void addPowerup(String powerup) {
         if(powerup.equals(Powerup.ROCKET) || powerup.equals(Powerup.LASER) || powerup.equals(Powerup.NUKE)) {
-            if(powerups.contains(Powerup.ROCKET)) powerups.remove(Powerup.ROCKET);
-            if(powerups.contains(Powerup.LASER)) powerups.remove(Powerup.LASER);
-            if(powerups.contains(Powerup.NUKE)) powerups.remove(Powerup.NUKE);
+            if(powerups.containsKey(Powerup.ROCKET)) powerups.remove(Powerup.ROCKET);
+            if(powerups.containsKey(Powerup.LASER)) powerups.remove(Powerup.LASER);
+            if(powerups.containsKey(Powerup.NUKE)) powerups.remove(Powerup.NUKE);
         }
         if(powerup.equals(Powerup.ROCKET)) this.rocketShots = 0;
         if(powerup.equals(Powerup.NUKE)) this.nukeShots = 0;
@@ -388,14 +385,13 @@ public class Sprite0Ship implements Sprite {
             this.laserForTime = 60000;
             this.laserTime = tc.getTickMillis();
         }
-        powerups.add(powerup);
-        powerupLife.put(powerup, powerup.equals(Powerup.ROCKET) || powerup.equals(Powerup.NUKE) ? 0 : tc.getTickMillis());
+        powerups.put(powerup, powerup.equals(Powerup.ROCKET) || powerup.equals(Powerup.NUKE) ? 0 : tc.getTickMillis());
     }
 
     public void removePowerup(String powerup) {
-        if(powerups.contains(powerup)) {
-            while(powerups.contains(powerup)) powerups.remove(powerup);
-            while(powerupLife.containsKey(powerup)) powerupLife.remove(powerup);
+        if(powerups.containsKey(powerup)) {
+            while(powerups.containsKey(powerup)) powerups.remove(powerup);
+            while(powerups.containsKey(powerup)) powerups.remove(powerup);
             if(powerup.equals(Powerup.INVINCIBILITY)) sm.stopMusic();
         }
     }

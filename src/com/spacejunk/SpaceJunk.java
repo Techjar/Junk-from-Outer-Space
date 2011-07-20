@@ -120,7 +120,6 @@ public class SpaceJunk {
 
         // Display
         Display.setDisplayMode(mode);
-
         Display.setFullscreen(fullscreen);
         Display.setVSyncEnabled(vSync);
         Display.setTitle(GAME_TITLE);
