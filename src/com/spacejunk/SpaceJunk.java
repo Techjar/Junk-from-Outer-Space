@@ -40,8 +40,6 @@ import com.spacejunk.util.*;
 import com.spacejunk.pause.*;
 import com.spacejunk.error.*;
 import com.spacejunk.title.*;
-import java.util.Calendar;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Actual SpaceJunk game object, contains the main code that makes the game work.
