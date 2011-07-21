@@ -41,6 +41,7 @@ import com.spacejunk.pause.*;
 import com.spacejunk.error.*;
 import com.spacejunk.title.*;
 import java.util.Calendar;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Actual SpaceJunk game object, contains the main code that makes the game work.
@@ -877,7 +878,7 @@ public class SpaceJunk {
         }
         else {
             Display.setTitle(GAME_TITLE + " (Loading...)");
-            soundManager.stopMusic(); runGame = false; startTc.setTicks(0);
+            soundManager.stopMusic(); runGame = false; startTc.setTicks(0); lastAsteroid = 0; lastPowerup = 0;
             sprites.clear(); asteroids.clear(); powerups.clear(); particles.clear();
             this.setScore(0); this.setDeaths(0); tc.setTicks(0); prevStartCountdown = 4;
             nextRand = (int)((float)random.nextInt(MathHelper.clamp(10000 / DIFFICULTY, 1, Integer.MAX_VALUE)) / MathHelper.clamp((float)curLevel / 5F, 1, Float.MAX_VALUE));
