@@ -85,7 +85,7 @@ public class Title0Options implements Title {
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Music Volume")) / 2) - 100, 100, "Music Volume", Color.red);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Sound Volume")) / 2) - 105, 130, "Sound Volume", Color.red);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Difficulty")) / 2) - 76, 160, "Difficulty", Color.red);
-        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Video Mode")) / 2) - 83, 190, "Video Mode", Color.red);
+        font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Resolution")) / 2) - 83, 190, "Resolution", Color.red);
         font.drawString(((Display.getDisplayMode().getWidth() - font.getWidth("Fullscreen")) / 2) - 85, 220, "Fullscreen", Color.red);
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 108, 200, 2, Color.darkGray);
         drawSquare(((Display.getDisplayMode().getWidth() - 200) / 2) + 100, 138, 200, 2, Color.darkGray);
