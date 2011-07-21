@@ -25,6 +25,7 @@ import com.spacejunk.particles.*;
 import com.spacejunk.SpaceJunk;
 import com.spacejunk.util.*;
 import java.util.Random;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.DisplayMode;
 import org.newdawn.slick.Color;
 
@@ -35,7 +36,7 @@ import org.newdawn.slick.Color;
 public class Sprite0Ship implements Sprite {
     private List<Sprite> sprites;
     private List<Particle> particles;
-    private int id, laserSound;
+    private int id, laserSound, selectedPowerup, maxSelectedPowerup;
     private float x, y;
     private long lastFire, hitTime, invTime, invForTime, invFrameTime;
     private long rocketShots, nukeShots, laserPower, maxLaserPower, laserTime, laserForTime;
@@ -48,7 +49,7 @@ public class Sprite0Ship implements Sprite {
     private Particle1Jet jet;
     private Particle3Laser laser1p, laser2p;
     private Color randomColor;
-    private Shape bounds;
+    private Shape bounds, circle18;
     private TickCounter tc;
     private UnicodeFont font;
     private Texture[] powerupTex;
@@ -63,7 +64,7 @@ public class Sprite0Ship implements Sprite {
             this.sprites = sprites; this.particles = particles;
             this.id = 0; this.x = x; this.y = y;
             this.lastFire = 0; this.hitTime = 0; this.invFrameTime = 0; this.invTime = 0; this.invForTime = 0;
-            this.rocketShots = 0; this.fireLaser = false; this.nukeShots = 0;
+            this.rocketShots = Sprite3Rocket.POWERUP_LIFE; this.fireLaser = false; this.nukeShots = Sprite7Nuke.POWERUP_LIFE;
             this.visible = true; this.hit = false; this.invincible = false; this.invState = true; this.respawning = false;
             this.powerupTime = new HashMap<String, Long>(); this.powerups = new HashMap<String, Long>();
             this.tex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/ship.png"), GL_NEAREST);
@@ -72,11 +73,11 @@ public class Sprite0Ship implements Sprite {
             this.laserTex = TextureLoader.getTexture("PNG", new FileInputStream("resources/textures/laser.png"), GL_NEAREST);
             this.sm = sm; this.maxLaserPower = 600; this.laserPower = this.maxLaserPower; this.laserCharged = true;
             this.jet = new Particle1Jet(sj, this.x - 26, this.y + 16, 0, true);
-            this.randomColor = new Color(0, 0, 0); this.laserSound = -1;
+            this.randomColor = new Color(0, 0, 0); this.laserSound = -1; this.selectedPowerup = 0; this.maxSelectedPowerup = 2;
             this.laser1 = new Vector2f(0, 0); this.laser2 = new Vector2f(0, 0);
             this.laser1p = new Particle3Laser(this.sj, 0, 0, 0); particles.add(laser1p);
             this.laser2p = new Particle3Laser(this.sj, 0, 0, 0); particles.add(laser2p);
-            this.bounds = new Rectangle(this.x - 28, this.y + 2, 22, 28);
+            this.bounds = new Rectangle(this.x - 28, this.y + 2, 22, 28); this.circle18 = new Circle(0, 10, 9);
             //this.bounds = new Polygon(PolygonHitbox.SHIP);
             particles.add(jet);
 
@@ -126,16 +127,16 @@ public class Sprite0Ship implements Sprite {
             jet.setX(this.x - 26); jet.setY(this.y + 16);
             if(!this.respawning) {
                 if(Mouse.isButtonDown(1) && !powerups.isEmpty()) {
-                    if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.containsKey(Powerup.ROCKET)) {
+                    if(tc.getTickMillis() - powerupTime.get(Sprite3Rocket.KEY_NAME) >= Sprite3Rocket.SHOT_DELAY && powerups.containsKey(Powerup.ROCKET) && this.selectedPowerup == 2) {
                         powerupTime.put(Sprite3Rocket.KEY_NAME, tc.getTickMillis());
                         sprites.add(new Sprite3Rocket(this.sj, sprites, particles, sm, this.x - 7, this.y + 8, this.rocketTex));
                         this.rocketShots++;
                     }
-                    if(powerups.containsKey(Powerup.LASER) && this.laserPower > 0 && this.laserCharged) {
+                    if(powerups.containsKey(Powerup.LASER) && this.selectedPowerup == 1 && this.laserPower > 0 && this.laserCharged) {
                         this.fireLaser = true;
                         if(this.laserSound < 0) this.laserSound = sm.playSoundEffect("weapon.laser", true);
                     }
-                    if(powerups.containsKey(Powerup.NUKE)) {
+                    if(powerups.containsKey(Powerup.NUKE) && this.selectedPowerup == 0) {
                         sprites.add(new Sprite7Nuke(this.sj, this.sprites, this.particles, this.sm, this.x - 5, this.y));
                         sm.playSoundEffect("ship.powerup");
                         this.nukeShots++;
@@ -227,6 +228,10 @@ public class Sprite0Ship implements Sprite {
                 pstime = Sprite3Rocket.POWERUP_LIFE - ptime;
                 drawPowerupIcon(this.powerupTex[2], dm.getWidth() - pos, 2);
                 glPushMatrix(); font.drawString((dm.getWidth() - (font.getWidth(Long.toString(pstime)) / 2)) - (pos - 8), 18, Long.toString(pstime), Color.white); glPopMatrix();
+                if(this.selectedPowerup == 2) {
+                    circle18.setCenterX(dm.getWidth() - pos + 8);
+                    glPushMatrix(); glColor3f(1, 1, 0); ShapeRenderer.draw(this.circle18); glPopMatrix();
+                }
             }
         }
         pos += 18;
@@ -281,6 +286,10 @@ public class Sprite0Ship implements Sprite {
                 pstime = ((this.laserForTime - ptime) / 1000) + 1;
                 drawPowerupIcon(this.powerupTex[4], dm.getWidth() - pos, 2);
                 glPushMatrix(); font.drawString((dm.getWidth() - (font.getWidth(Long.toString(pstime)) / 2)) - (pos - 8), 18, Long.toString(pstime), Color.white); glPopMatrix();
+                if(this.selectedPowerup == 1) {
+                    circle18.setCenterX(dm.getWidth() - pos + 8);
+                    glPushMatrix(); glColor3f(1, 1, 0); ShapeRenderer.draw(this.circle18); glPopMatrix();
+                }
             }
         }
         pos += 18;
@@ -295,6 +304,10 @@ public class Sprite0Ship implements Sprite {
                 pstime = Sprite7Nuke.POWERUP_LIFE - ptime;
                 drawPowerupIcon(this.powerupTex[5], dm.getWidth() - pos, 2);
                 glPushMatrix(); font.drawString((dm.getWidth() - (font.getWidth(Long.toString(pstime)) / 2)) - (pos - 8), 18, Long.toString(pstime), Color.white); glPopMatrix();
+                if(this.selectedPowerup == 0) {
+                    circle18.setCenterX(dm.getWidth() - pos + 8);
+                    glPushMatrix(); glColor3f(1, 1, 0); ShapeRenderer.draw(this.circle18); glPopMatrix();
+                }
             }
         }
         pos += 18;
@@ -333,6 +346,8 @@ public class Sprite0Ship implements Sprite {
         try {
             particles.add(new Particle0Explosion(sj, this.x - 16, this.y + 16, 1500, 0));
             powerups.clear();
+            this.invForTime = 0; this.laserForTime = 0;
+            this.rocketShots = Sprite3Rocket.POWERUP_LIFE; this.fireLaser = false; this.nukeShots = Sprite7Nuke.POWERUP_LIFE;
             sm.playSoundEffect("ambient.explode.0", false);
         }
         catch(Exception e) {
@@ -368,24 +383,27 @@ public class Sprite0Ship implements Sprite {
     }
 
     public void addPowerup(String powerup) {
-        if(powerup.equals(Powerup.ROCKET) || powerup.equals(Powerup.LASER) || powerup.equals(Powerup.NUKE)) {
-            if(powerups.containsKey(Powerup.ROCKET)) powerups.remove(Powerup.ROCKET);
-            if(powerups.containsKey(Powerup.LASER)) powerups.remove(Powerup.LASER);
-            if(powerups.containsKey(Powerup.NUKE)) powerups.remove(Powerup.NUKE);
-        }
-        if(powerup.equals(Powerup.ROCKET)) this.rocketShots = 0;
-        if(powerup.equals(Powerup.NUKE)) this.nukeShots = 0;
+        if(powerup.equals(Powerup.ROCKET)) this.selectedPowerup = 2;
+        if(powerup.equals(Powerup.LASER)) this.selectedPowerup = 1;
+        if(powerup.equals(Powerup.NUKE)) this.selectedPowerup = 0;
+        
+        if(powerup.equals(Powerup.ROCKET)) this.rocketShots -= Sprite3Rocket.POWERUP_LIFE;
+        if(powerup.equals(Powerup.NUKE)) this.nukeShots -= Sprite7Nuke.POWERUP_LIFE;
         if(powerup.equals(Powerup.INVINCIBILITY)) {
             this.invincible = true;
-            this.invForTime = 15000;
+            this.invForTime += 15000;
             this.invTime = tc.getTickMillis();
             if(sm.getCurrentMusic() != "invincible") sm.playMusic("invincible", true);
         }
         if(powerup.equals(Powerup.LASER)) {
-            this.laserForTime = 60000;
+            this.laserForTime += 30000;
             this.laserTime = tc.getTickMillis();
         }
-        powerups.put(powerup, powerup.equals(Powerup.ROCKET) || powerup.equals(Powerup.NUKE) ? 0 : tc.getTickMillis());
+        if(powerups.containsKey(powerup) && !powerup.equals(Powerup.ROCKET) && !powerup.equals(Powerup.NUKE)) {
+            if(powerup.equals(Powerup.FASTSHOT)) powerups.put(powerup, powerups.get(powerup) + 20000);
+            else if(powerup.equals(Powerup.BIGSHOT)) powerups.put(powerup, powerups.get(powerup) + Sprite1Gunfire.POWERUP_LIFE);
+        }
+        else powerups.put(powerup, powerup.equals(Powerup.ROCKET) || powerup.equals(Powerup.NUKE) ? 0 : tc.getTickMillis());
     }
 
     public void removePowerup(String powerup) {
@@ -501,5 +519,34 @@ public class Sprite0Ship implements Sprite {
 
         glEnable(GL_TEXTURE_2D);
         glPopMatrix();
+    }
+    
+    public void processPowerupSelect(int type) {
+        if(type == 0) {
+            if(Keyboard.getEventKey() == Keyboard.KEY_LEFT) {
+                this.selectedPowerup = MathHelper.loop(this.selectedPowerup - 1, 0, this.maxSelectedPowerup);
+                for(int i = 0; i < this.maxSelectedPowerup && !this.powerupSelectExists(this.selectedPowerup); i++) this.selectedPowerup = MathHelper.loop(this.selectedPowerup - 1, 0, this.maxSelectedPowerup);
+            }
+            if(Keyboard.getEventKey() == Keyboard.KEY_RIGHT) {
+                this.selectedPowerup = MathHelper.loop(this.selectedPowerup + 1, 0, this.maxSelectedPowerup);
+                for(int i = 0; i < this.maxSelectedPowerup && !this.powerupSelectExists(this.selectedPowerup); i++) this.selectedPowerup = MathHelper.loop(this.selectedPowerup + 1, 0, this.maxSelectedPowerup);
+            }
+        }
+        if(type == 1) {
+            int dwheel = Mouse.getDWheel();
+            if(dwheel < 0) {
+                this.selectedPowerup = MathHelper.loop(this.selectedPowerup - 1, 0, this.maxSelectedPowerup);
+                for(int i = 0; i < this.maxSelectedPowerup && !this.powerupSelectExists(this.selectedPowerup); i++) this.selectedPowerup = MathHelper.loop(this.selectedPowerup - 1, 0, this.maxSelectedPowerup);
+            }
+            if(dwheel > 0) {
+                this.selectedPowerup = MathHelper.loop(this.selectedPowerup + 1, 0, this.maxSelectedPowerup);
+                for(int i = 0; i < this.maxSelectedPowerup && !this.powerupSelectExists(this.selectedPowerup); i++) this.selectedPowerup = MathHelper.loop(this.selectedPowerup + 1, 0, this.maxSelectedPowerup);
+            }
+        }
+    }
+    
+    private boolean powerupSelectExists(int select) {
+        if((select == 0 && powerups.containsKey(Powerup.NUKE)) || (select == 1 && powerups.containsKey(Powerup.LASER)) || (select == 2 && powerups.containsKey(Powerup.ROCKET))) return true;
+        return false;
     }
 }

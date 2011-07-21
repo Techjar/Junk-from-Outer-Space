@@ -54,7 +54,7 @@ public class SpaceJunk {
     private int score, deaths, startCountdown, prevStartCountdown, fpsDisp, curLevel, nextRand, nextPowerupRand, lastMouseX, lastMouseY, pauseScreen, titleScreen;
     private long lastAsteroid, lastPowerup, fpsDispTime, time, startTime, lastFrame, highScore, fpsLastFrame, fps, astCollTime;
     private float titleFade;
-    private boolean mouseClicked, runGame, renderCollision, prevMusicPlaying, firstPowerup, onTitle, astColl, asteroidCollision;;
+    private boolean mouseClicked, runGame, renderCollision, prevMusicPlaying, firstPowerup, onTitle, astColl, asteroidCollision, paused;
     private String pauseHover, titleHover;
     private UnicodeFont batmfa20, batmfa37, batmfa60, nighb100, COPRGTB45;
     private SoundManager soundManager;
@@ -109,7 +109,7 @@ public class SpaceJunk {
         DISPLAY_MODE = mode;
 
         // Default stuff
-        score = 0; deaths = 0; curLevel = 1; nextRand = 0; nextPowerupRand = 0; pauseScreen = 0; titleScreen = 0; runGame = false; startCountdown = 0;
+        score = 0; deaths = 0; curLevel = 1; nextRand = 0; nextPowerupRand = 0; pauseScreen = 0; titleScreen = 0; runGame = false; startCountdown = 0; paused = true;
         lastAsteroid = 0; lastPowerup = 0; time = 0; startTime = 0; lastFrame = 0; pauseHover = ""; titleHover = ""; titleFade = 0.0F;
         onTitle = true; mouseClicked = false; renderCollision = renderColl; prevMusicPlaying = false; firstPowerup = true; prevStartCountdown = 0;
         sprites = new ArrayList<Sprite>(); titleSprites = new ArrayList<TitleSprite>(); asteroids = new ArrayList<Sprite2Asteroid>();
@@ -318,11 +318,34 @@ public class SpaceJunk {
                 if(Keyboard.getEventKey() == Keyboard.KEY_F10) soundManager.stopMusic();
                 if(Keyboard.getEventKey() == Keyboard.KEY_F11) changeDisplayMode(FULLSCREEN ? DISPLAY_MODE : Display.getDesktopDisplayMode(), !FULLSCREEN);*/
                 if(Keyboard.getEventKey() == Keyboard.KEY_F1 && sprites.size() > 0 && sprites.get(0) instanceof Sprite0Ship && !((Sprite0Ship)sprites.get(0)).isInvincible()) soundManager.playRandomMusic();
+            
+                if(!this.paused) {
+                    Sprite sprite = sprites.get(0);
+                    if(sprite instanceof Sprite0Ship) {
+                        ((Sprite0Ship)sprite).processPowerupSelect(0);
+                    }
+                    else {
+                        throw new JFOSException("Ship sprite not found at index 0 in sprites list.");
+                    }
+                }
             }
         }
     }
 
     private void processMouse() throws JFOSException {
+        while(Mouse.next()) {
+            if(!onTitle && runGame) {
+                if(!this.paused) {
+                    Sprite sprite = sprites.get(0);
+                    if(sprite instanceof Sprite0Ship) {
+                        ((Sprite0Ship)sprite).processPowerupSelect(1);
+                    }
+                    else {
+                        throw new JFOSException("Ship sprite not found at index 0 in sprites list.");
+                    }
+                }
+            }
+        }
     }
 
     private void render() throws JFOSException {
@@ -395,6 +418,7 @@ public class SpaceJunk {
     }
 
     private void update() throws JFOSException {
+        this.paused = !Mouse.isGrabbed();
         if(System.currentTimeMillis() - fpsDispTime >= 100) {
             fpsDisp = (int)fps;
             fpsDispTime = System.currentTimeMillis();

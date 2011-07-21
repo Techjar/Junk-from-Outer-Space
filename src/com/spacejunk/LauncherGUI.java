@@ -17,6 +17,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import com.spacejunk.util.ResolutionSorter;
 import com.spacejunk.util.ConfigManager;
+import com.spacejunk.util.StackTrace;
 
 /**
  * 
@@ -107,8 +108,9 @@ public class LauncherGUI extends JFrame {
                 sj.create();
                 sj.run();
             }
-            catch(Exception e) {
+            catch(Throwable e) {
                 e.printStackTrace();
+                org.lwjgl.Sys.alert("Java Error", StackTrace.stackTraceToString(e));
             }
             finally {
                 if(sj != null) sj.destroy();

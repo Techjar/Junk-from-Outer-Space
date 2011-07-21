@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import com.spacejunk.util.StackTrace;
 
 /**
  * Asteroids main class.
@@ -33,7 +34,7 @@ public class Main {
             if(USE_LAUNCHER) {
                 LauncherGUI launcher = null;
                 try {
-                    launcher = new LauncherGUI("Junk from Outer Space Launcher", args.length < 1 ? false : args[0].equalsIgnoreCase("render-collision"));
+                    //launcher = new LauncherGUI("Junk from Outer Space Launcher", args.length < 1 ? false : args[0].equalsIgnoreCase("render-collision"));
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -61,8 +62,9 @@ public class Main {
                     sj.create();
                     sj.run();
                 }
-                catch(Exception e) {
+                catch(Throwable e) {
                     e.printStackTrace();
+                    org.lwjgl.Sys.alert("Java Error", StackTrace.stackTraceToString(e));
                 }
                 finally {
                     if(sj != null) sj.destroy();
@@ -70,20 +72,21 @@ public class Main {
                 }
             }
         }
-        catch(Exception e) {
+        catch(Throwable e) {
             e.printStackTrace();
+            org.lwjgl.Sys.alert("Java Error", StackTrace.stackTraceToString(e));
             System.exit(0);
         }
     }
 
     private static int getDifficulty(int diff) {
-            switch(diff) {
-                case 0: return 1;
-                case 1: return 4;
-                case 2: return 7;
-                case 3: return 10;
-                case 4: return 100;
-                default: return 1;
-            }
+        switch(diff) {
+            case 0: return 1;
+            case 1: return 4;
+            case 2: return 7;
+            case 3: return 10;
+            case 4: return 100;
+            default: return 1;
         }
+    }
 }
