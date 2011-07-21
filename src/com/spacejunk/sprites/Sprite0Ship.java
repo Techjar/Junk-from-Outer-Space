@@ -448,8 +448,8 @@ public class Sprite0Ship implements Sprite {
         if(found && sp != null && b2 != null) {
             for(int j = x2; j < Display.getDisplayMode().getWidth(); j++) {
                 if(sp instanceof HostileSprite && b1.intersects(b2)) {
-                    if(laser == 1) laser1.set(j + x, y + 2);
-                    if(laser == 2) laser2.set(j + x, y + 2);
+                    if(laser == 1) laser1.set(MathHelper.clamp(j + x, 0, Display.getDisplayMode().getWidth()), y + 2);
+                    if(laser == 2) laser2.set(MathHelper.clamp(j + x, 0, Display.getDisplayMode().getWidth()), y + 2);
                     ((HostileSprite)sp).hit(1);
                     break;
                 }
