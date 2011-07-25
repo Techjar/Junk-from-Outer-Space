@@ -402,7 +402,7 @@ public class Sprite0Ship implements Sprite {
             if(sm.getCurrentMusic() != "invincible") sm.playMusic("invincible", true);
         }
         if(powerup.equals(Powerup.LASER)) {
-            this.laserForTime += 30000;
+            this.laserForTime += 60000;
             if(!powerups.containsKey(powerup)) this.laserTime = tc.getTickMillis();
         }
         if(powerups.containsKey(powerup) && !powerup.equals(Powerup.ROCKET) && !powerup.equals(Powerup.NUKE)) {
@@ -457,6 +457,7 @@ public class Sprite0Ship implements Sprite {
             }
         }
         this.drawTexturedSquare(b1.getX(), b1.getY(), b1.getWidth(), b1.getHeight(), this.laserTex);
+        
     }
 
     private void drawPowerupIcon(Texture texture, int x, int y) {

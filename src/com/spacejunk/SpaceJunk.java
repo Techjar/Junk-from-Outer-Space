@@ -228,7 +228,7 @@ public class SpaceJunk {
                 this.update();
                 this.render();
                 fps = Math.round(1000000000D / Math.max((double)System.nanoTime() - (double)fpsLastFrame, 1D));
-                fpsLastFrame = System.nanoTime(); tc.setFps((int)fps); lastFrame = tc.getTickMillis();
+                fpsLastFrame = System.nanoTime(); lastFrame = tc.getTickMillis();
             }
             else {
                 if(Display.isDirty()) {
@@ -859,6 +859,14 @@ public class SpaceJunk {
 
     public boolean isOnTitle() {
         return this.onTitle;
+    }
+
+    public boolean isPaused() {
+        return this.paused;
+    }
+
+    public boolean isRunGame() {
+        return this.runGame;
     }
 
     public void setOnTitle(boolean onTitle) {
