@@ -21,6 +21,7 @@ import com.spacejunk.util.MathHelper;
  * @author Techjar
  */
 public class SoundManager {
+    private boolean init = false;
     private int tracks;
     private Object currentMusic;
     private Audio nullMusic, randMusic;
@@ -34,19 +35,23 @@ public class SoundManager {
             for(this.tracks = 0; new File("resources/music/" + this.tracks + ".ogg").exists(); this.tracks++){}
             nullMusic = AudioLoader.getAudio("WAV", new FileInputStream("resources/null.wav"));
             this.initSoundList();
+            this.init = true;
         }
         catch(Exception e) {
             e.printStackTrace();
-            System.exit(0);
+            org.lwjgl.Sys.alert("Sound Engine Error", "The sound engine failed to initialize, sound will be disabled.");
+            //org.lwjgl.Sys.alert("Java Error", com.spacejunk.util.StackTrace.stackTraceToString(e));
         }
     }
 
     public void poll(int delta) {
+        if(!this.init) return;
         if(!SoundStore.get().isMusicPlaying() && this.currentMusic != "") this.currentMusic = "";
         SoundStore.get().poll(delta);
     }
 
     public void stopMusic() {
+        if(!this.init) return;
         nullMusic.playAsMusic(1, 1, false);
         this.currentMusic = "";
     }
@@ -64,6 +69,7 @@ public class SoundManager {
     }
 
     public void playMusic(Object track, boolean loop, float pitch, float gain) {
+        if(!this.init) return;
         try {
             randMusic = AudioLoader.getStreamingAudio("OGG", new File("resources/music/" + track + ".ogg").toURI().toURL());
             randMusic.playAsMusic(pitch, gain, loop);
@@ -91,36 +97,39 @@ public class SoundManager {
     }
 
     public int playSoundEffect(String name, boolean loop, float pitch, float gain) {
+        if(!this.init) return 0;
         Audio sound = soundEffects.get(name);
         if(sound != null) return sound.playAsSoundEffect(pitch, gain, loop);
         return -1;
     }
 
     public void stopSoundEffect(int id) {
+        if(!this.init) return;
         SoundStore.get().stopSoundEffect(id);
     }
 
     public void setMusicVolume(float volume) {
+        if(!this.init) return;
         SoundStore.get().setMusicVolume(MathHelper.clamp(volume, 0, 1));
     }
 
     public void setSoundVolume(float volume) {
+        if(!this.init) return;
         SoundStore.get().setSoundVolume(MathHelper.clamp(volume, 0, 1));
     }
 
     public float getMusicVolume() {
+        if(!this.init) return 0.0F;
         return SoundStore.get().getMusicVolume();
     }
 
     public float getSoundVolume() {
+        if(!this.init) return 0.0F;
         return SoundStore.get().getSoundVolume();
     }
 
-    public Audio getRandMusic() {
-        return this.randMusic;
-    }
-
     public Object getCurrentMusic() {
+        if(!this.init) return "";
         return this.currentMusic;
     }
 

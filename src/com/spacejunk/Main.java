@@ -31,6 +31,10 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
+            /*if(!System.getProperty("java.version").startsWith("1.6")) {
+                org.lwjgl.Sys.alert("Java 6 Required", "Junk from Outer Space requires Java 6, no other version of Java is compatible. Please install Java 6 to play Junk from Outer Space.");
+                System.exit(0);
+            }*/
             if(USE_LAUNCHER) {
                 LauncherGUI launcher = null;
                 try {
