@@ -402,7 +402,7 @@ public class Sprite0Ship implements Sprite {
             if(sm.getCurrentMusic() != "invincible") sm.playMusic("invincible", true);
         }
         if(powerup.equals(Powerup.LASER)) {
-            this.laserForTime += 60000;
+            this.laserForTime += 30000;
             if(!powerups.containsKey(powerup)) this.laserTime = tc.getTickMillis();
         }
         if(powerups.containsKey(powerup) && !powerup.equals(Powerup.ROCKET) && !powerup.equals(Powerup.NUKE)) {

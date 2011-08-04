@@ -96,6 +96,7 @@ public class SpaceJunk {
         soundManager = new SoundManager();
         soundManager.setMusicVolume(musicVolume);
         soundManager.setSoundVolume(soundVolume);
+        
         // Sound poll thread
         new SoundPollThread(soundManager).start();
 
